@@ -179,6 +179,43 @@ var systemComponents = {
             <tr>
                 <td><button class="opt" onclick="toggleOpt('mobileShortcuts')">Mobile Shortcuts: {{ options.mobileShortcuts?"ON":"OFF" }}</button></td>
                 <td><button class="opt" onclick="toggleOpt('additionalMobileShortcuts')">Layer Info Shortcuts: {{ options.additionalMobileShortcuts?"ON":"OFF" }}</button></td>
+				<td><button class="opt" onclick="limitThiShitPlease(['Select amount of clones to be displayed','Select intensity of clone movements in px.'],'options.pissLimit[i] = new Decimal(numbah[i])',false)">{{ hasUpgrade("yourGod","space1")?"Terrasect":"Cube" }}'s Clone Limit and Intensity Movement: [{{ formatWhole(options.pissLimit[0]) }}|{{ formatWhole(options.pissLimit[1]) }}]</button></td>
+				</tr> 
+            <tr>
+        </table>`
+    },
+	'secret-options-tab': {
+        template: `
+        <table>
+            <tr>
+                <td><button class="opt" onclick="save()">Save</button></td>
+                <td><button class="opt" onclick="toggleOpt('autosave')">Autosave: {{ options.autosave?"ON":"OFF" }}</button></td>
+                <td><button class="opt" onclick="hardReset()">HARD RESET</button></td>
+            </tr>
+            <tr>
+                <td><button class="opt" onclick="exportSave()">Export to clipboard</button></td>
+                <td><button class="opt" onclick="importSave()">Import</button></td>
+                <td><button class="opt" onclick="toggleOpt('offlineProd')">Offline Prod: {{ options.offlineProd?"ON":"OFF" }}</button></td>
+            </tr>
+            <tr>
+                <td><button class="opt" onclick="switchTheme()">Theme: {{ getThemeName() }}</button></td>
+                <td><button class="opt" onclick="adjustMSDisp()">Show Milestones: {{ MS_DISPLAYS[MS_SETTINGS.indexOf(options.msDisplay)]}}</button></td>
+                <td><button class="opt" onclick="toggleOpt('hqTree')">High-Quality Tree: {{ options.hqTree?"ON":"OFF" }}</button></td>
+            </tr>
+            <tr>
+                <td><button class="opt" onclick="toggleOpt('hideChallenges')">Completed Challenges: {{ options.hideChallenges?"HIDDEN":"SHOWN" }}</button></td>
+                <td><button class="opt" onclick="toggleOpt('forceOneTab'); needsCanvasUpdate = true">Single-Tab Mode: {{ options.forceOneTab?"ALWAYS":"AUTO" }}</button></td>
+				<td><button class="opt" onclick="toggleOpt('forceTooltips'); needsCanvasUpdate = true">Shift-Click to Toggle Tooltips: {{ options.forceTooltips?"ON":"OFF" }}</button></td>
+				</tr> 
+            <tr>
+                <td><button class="opt" onclick="toggleOpt('skipDialogueErasure')">Skip Dialogue Erasure: {{ options.skipDialogueErasure?"ON":"OFF" }}</button></td>
+                <td><button class="opt" onclick="toggleOpt('fastForwardDialogue')">Fast Forward Dialogue: {{ options.fastForwardDialogue?"ON":"OFF" }}</button></td>
+                <td><button class="opt" onclick="toggleOpt('precisionNumber')">Precise Numbers: {{ options.precisionNumber?"ON":"OFF" }}</button></td>
+            </tr>
+            <tr>
+                <td><button class="opt" onclick="toggleOpt('mobileShortcuts')">Mobile Shortcuts: {{ options.mobileShortcuts?"ON":"OFF" }}</button></td>
+                <td><button class="opt" onclick="toggleOpt('additionalMobileShortcuts')">Layer Info Shortcuts: {{ options.additionalMobileShortcuts?"ON":"OFF" }}</button></td>
+				<td><button class="opt" onclick="limitThiShitPlease()">{{ hasUpgrade("yourGod","space1")?"Terrasect":"Cube" }}'s Clone Limit and Intensity Movement: [{{ formatWhole(options.pissLimit[0]) }}|{{ formatWhole(options.pissLimit[1]) }}]</button></td>
 				</tr> 
             <tr>
         </table>`

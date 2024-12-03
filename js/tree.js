@@ -10,10 +10,10 @@ var layoutInfo = {
 
 
 // A "ghost" layer which offsets other layers in the tree
-addNode("blank", {
+addNode("blank", { 
     layerShown: "ghost",
     nodeStyle(){return{
-        width: (player["tree-tab"].shown[2]&&player["tree-tab"].shown[3]?player["tree-tab"].coolMobileStuff[0].mul(75).add(player["tree-tab"].coolMobileStuff[1].mul(75)):0)+"px"
+        width: (player["tree-tab"].shown[2]&&player["tree-tab"].shown[3]?player["tree-tab"].coolMobileStuff[0].mul(75).add(player["tree-tab"].coolMobileStuff[1].mul(75)).add(player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("t")?70:0):0)+"px"
     }}
 }), 
 
@@ -46,15 +46,64 @@ addNode("pNodeExtra", {
     position: 1,
     symbol(){return `<span style='margin-left: -60px;font-size:16px;'>Passive<br><span style='margin-left: -60px;font-size:16px;'>Gain:<br><span style='margin-left: -60px;font-size:15px;'>${format(getResetGain("p").mul(tmp.p.passiveGeneration))}/sec`},
     canClick() {return true},
+	onClick(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="none") player["tree-tab"].holyFuckingShitNoFuckingWayBro[0] = "p"
+		else if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="none"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="p") player["tree-tab"].holyFuckingShitNoFuckingWayBro[1] = "p"
+		else if((player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="p"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="none")||(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="p"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="none")){
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])
+		}
+	},
+    onHold() {
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="none") player["tree-tab"].holyFuckingShitNoFuckingWayBro[0] = "p"
+		else if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="none"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="p") player["tree-tab"].holyFuckingShitNoFuckingWayBro[1] = "p"
+		else if((player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="p"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="none")||(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="p"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="none")){
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])
+		}
+	},
     nodeStyle(){return{
         "position": "absolute",
         "transform": "scale("+(player.p.unlocked?player["tree-tab"].coolMobileStuff[1]:0)+","+new Decimal(1.176470588).sub(player["tree-tab"].coolMobileStuff[1].mul(0.176470588))+")",
         "margin-left": player["tree-tab"].coolMobileStuff[1].mul(55).add(15).mul(-1)+"px",   
         "margin-top": "8px",
         "z-index": "0",
-        "box-shadow": "0px 0px "+(options.mobileShortcuts?new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):player["tree-tab"].coolMobileStuff[1].mul(100))+"px "+tmp.p.color, 
+        "box-shadow": "0px 0px "+(options.additionalMobileShortcuts?new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):player["tree-tab"].coolMobileStuff[1].mul(100))+"px "+tmp.p.color+",0px 0px "+(canReset("p")&&player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("p")?20:0)+"px white", 
         "font-size":"0px",
         "height": "85px",
+        "width": "150px",
+        "border-radius": "25% 0% 0% 25%",
+    }},
+    layerShown(){return player["tree-tab"].shown[0]}
+})
+
+addNode("pNodeBond", {
+    color(){return tmp.p.color}, 
+    row: 0,
+    position: 1,
+    symbol(){return `<p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Order: ${player["tree-tab"].holyFuckingShitNoFuckingWayBro[1].includes("p")?"2":player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("p")?"1":""}</p><br><p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Click To</p><br><p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Unbond</p>`},
+    canClick() {return true},
+	onClick(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("p")){
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]="none"
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]="none"
+		}
+	},
+	onHold(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("p")){
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]="none"
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]="none"
+		}
+	},
+    nodeStyle(){return{
+        "position": "absolute",
+        "transform": "scale("+(player.p.unlocked&&(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="p"||player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="p")?player["tree-tab"].coolMobileStuff[1]:0)+","+new Decimal(1.176470588).sub(player["tree-tab"].coolMobileStuff[1].mul(0.176470588))+")",
+        "margin-left": player["tree-tab"].coolMobileStuff[1].mul(120).add(15).mul(-1)+"px",   
+        "margin-top": "16px",
+        "z-index": "0",
+        "box-shadow": "0px 0px "+(canReset("p")&&player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("p")?20:0)+"px white", 
+        "font-size":"0px",
+        "height": "70px",
         "width": "150px",
         "border-radius": "25% 0% 0% 25%",
     }},
@@ -90,15 +139,64 @@ addNode("sNodeExtra", {
     position: 1,
     symbol(){return `<span style='margin-left: -60px;font-size:16px;'>Passive<br><span style='margin-left: -60px;font-size:16px;'>Gain:<br><span style='margin-left: -60px;font-size:15px;'>${format(getResetGain("s").mul(tmp.s.passiveGeneration))}/sec<br><p style='margin-left: -60px;font-size:8px; transform: scale(1.25, 1.5);'>Total Size:<br><p style='margin-left: -60px;font-size:8px; transform: scale(1.25, 1.5);'>${format(tmp.s.totalSize)}px³`},
     canClick() {return true},
+	onClick(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="none") player["tree-tab"].holyFuckingShitNoFuckingWayBro[0] = "s"
+		else if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="none"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="s") player["tree-tab"].holyFuckingShitNoFuckingWayBro[1] = "s"
+		else if((player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="s"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="none")||(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="s"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="none")){
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])
+		}
+	},
+    onHold() {
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="none") player["tree-tab"].holyFuckingShitNoFuckingWayBro[0] = "s"
+		else if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="none"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="s") player["tree-tab"].holyFuckingShitNoFuckingWayBro[1] = "s"
+		else if((player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="s"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="none")||(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="s"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="none")){
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])
+		}
+	},
     nodeStyle(){return{
         "position": "absolute",
         "transform": "scale("+(player.s.unlocked?player["tree-tab"].coolMobileStuff[1]:0)+","+new Decimal(1.176470588).sub(player["tree-tab"].coolMobileStuff[1].mul(0.176470588))+")",
         "margin-left": player["tree-tab"].coolMobileStuff[1].mul(55).add(15).mul(-1)+"px",   
         "margin-top": "8px",
         "z-index": "0",
-        "box-shadow": "0px 0px "+(options.mobileShortcuts?new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):player["tree-tab"].coolMobileStuff[1].mul(100))+"px "+tmp.s.color, 
+        "box-shadow": "0px 0px "+(options.additionalMobileShortcuts?new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):player["tree-tab"].coolMobileStuff[1].mul(100))+"px "+tmp.s.color+",0px 0px "+(canReset("s")&&player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("s")?20:0)+"px white", 
         "font-size":"0px",
         "height": "85px",
+        "width": "150px",
+        "border-radius": "25% 0% 0% 25%",
+    }},
+    layerShown(){return player.s.unlocked}
+})
+
+addNode("sNodeBond", {
+    color(){return tmp.s.color}, 
+    row: 0,
+    position: 1,
+    symbol(){return `<p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Order: ${player["tree-tab"].holyFuckingShitNoFuckingWayBro[1].includes("s")?"2":player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("s")?"1":""}</p><br><p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Click To</p><br><p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Unbond</p>`},
+    canClick() {return true},
+	onClick(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("s")){
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]="none"
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]="none"
+		}
+	},
+	onHold(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("s")){
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]="none"
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]="none"
+		}
+	},
+    nodeStyle(){return{
+        "position": "absolute",
+        "transform": "scale("+(player.p.unlocked&&(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="s"||player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="s")?player["tree-tab"].coolMobileStuff[1]:0)+","+new Decimal(1.176470588).sub(player["tree-tab"].coolMobileStuff[1].mul(0.176470588))+")",
+        "margin-left": player["tree-tab"].coolMobileStuff[1].mul(120).add(15).mul(-1)+"px",   
+        "margin-top": "16px",
+        "z-index": "0",
+        "box-shadow": "0px 0px "+(canReset("s")&&player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("s")?20:0)+"px white", 
+        "font-size":"0px",
+        "height": "70px",
         "width": "150px",
         "border-radius": "25% 0% 0% 25%",
     }},
@@ -134,15 +232,64 @@ addNode("tNodeExtra", {
     position: 1,
     symbol(){return `<span style='margin-left: -60px;font-size:16px;'>Passive<br><span style='margin-left: -60px;font-size:16px;'>Gain:<br><span style='margin-left: -60px;font-size:15px;'>${format(getResetGain("t").mul(tmp.t.passiveGeneration))}/sec<br><p style='margin-left: -60px;font-size:8px; transform: scale(1.25, 1.5);'>Time Points:<br><p style='margin-left: -60px;font-size:8px; transform: scale(1.25, 1.5);'>${format(player.t.timePoints)} time points`},
     canClick() {return true},
+	onClick(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="none") player["tree-tab"].holyFuckingShitNoFuckingWayBro[0] = "t"
+		else if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="none"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="t") player["tree-tab"].holyFuckingShitNoFuckingWayBro[1] = "t"
+		else if((player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="t"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="none")||(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="t"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="none")){
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])
+		}
+	},
+    onHold() {
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="none") player["tree-tab"].holyFuckingShitNoFuckingWayBro[0] = "t"
+		else if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="none"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="t") player["tree-tab"].holyFuckingShitNoFuckingWayBro[1] = "t"
+		else if((player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="t"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="none")||(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="t"&&player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]!=="none")){
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0])
+			if (canReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])) doReset(player["tree-tab"].holyFuckingShitNoFuckingWayBro[1])
+		}
+	},
     nodeStyle(){return{
         "position": "absolute",
         "transform": "scale("+(player.t.unlocked?player["tree-tab"].coolMobileStuff[1]:0)+","+new Decimal(1.176470588).sub(player["tree-tab"].coolMobileStuff[1].mul(0.176470588))+")",
         "margin-left": player["tree-tab"].coolMobileStuff[1].mul(55).add(15).mul(-1)+"px",   
         "margin-top": "8px",
         "z-index": "0",
-        "box-shadow": "0px 0px "+(options.mobileShortcuts?new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):player["tree-tab"].coolMobileStuff[1].mul(100))+"px "+tmp.t.color, 
+        "box-shadow": "0px 0px "+(options.additionalMobileShortcuts?new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):player["tree-tab"].coolMobileStuff[1].mul(100))+"px "+tmp.t.color+",0px 0px "+(canReset("t")&&player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("t")?20:0)+"px white",  
         "font-size":"0px",
         "height": "85px",
+        "width": "150px",
+        "border-radius": "25% 0% 0% 25%",
+    }},
+    layerShown(){return player.t.unlocked}
+})
+
+addNode("tNodeBond", {
+    color(){return tmp.t.color}, 
+    row: 0,
+    position: 1,
+    symbol(){return `<p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Order: ${player["tree-tab"].holyFuckingShitNoFuckingWayBro[1].includes("t")?"2":player["tree-tab"].holyFuckingShitNoFuckingWayBro[0].includes("t")?"1":""}</p><br><p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Click To</p><br><p style='margin-left: -80px;font-size:16px; transform: scale(0.65,1);'>Unbond</p>`},
+    canClick() {return true},
+	onClick(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="t"||player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="t"){
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]="none"
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]="none"
+		}
+	},
+	onHold(){
+		if(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="t"||player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]!=="t"){
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]="none"
+			player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]="none"
+		}
+	},
+    nodeStyle(){return{
+        "position": "absolute",
+        "transform": "scale("+(player.p.unlocked&&(player["tree-tab"].holyFuckingShitNoFuckingWayBro[0]=="t"||player["tree-tab"].holyFuckingShitNoFuckingWayBro[1]=="t")?player["tree-tab"].coolMobileStuff[1]:0)+","+new Decimal(1.176470588).sub(player["tree-tab"].coolMobileStuff[1].mul(0.176470588))+")",
+        "margin-left": player["tree-tab"].coolMobileStuff[1].mul(120).add(15).mul(-1)+"px",   
+        "margin-top": "16px",
+        "z-index": "0",
+        "box-shadow": "0px 0px "+(canReset("t")&&player["tree-tab"].holyFuckingShitNoFuckingWayBro.includes("t")?20:0)+"px white", 
+        "font-size":"0px",
+        "height": "70px",
         "width": "150px",
         "border-radius": "25% 0% 0% 25%",
     }},
@@ -154,13 +301,19 @@ addNode("penis", {
     position: 1,
     symbol: "P",
     canClick() {return true},
-	onClick() {player.tab = "her"},
-    layerShown(){return true}
+	onClick() {
+		player.tab = "her"
+		player.her.sheWasSeen = true
+	},
+	shouldNotify(){return (player.her.herLog[1]==1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))},
+	glowColor(){return "rgb(0,255,255)"},
+    layerShown(){return !player.her.accessDenied}
 })
 
 addLayer("tree-tab", {
     startData() { return {
         coolMobileStuff: [new Decimal(0),new Decimal(0)],
+		holyFuckingShitNoFuckingWayBro: ["none","none"],
         display: "",
         currentDialogueSymbol: 0,
         specialEventsCounter: 0,
@@ -176,13 +329,16 @@ addLayer("tree-tab", {
         resetCounters: [0,0,"",0],
         waitingForNextDialogue: [],
         youShouldStopYourselfNOW: false,
+		heFuckingCheated: false,
         shown: [false, false, false, false]
     }},
     update(diff){ 
+		if(player["tree-tab"].youShouldStopYourselfNOW) player.devSpeed = -1.7976931348623157e+308
         player["tree-tab"].coolMobileStuff[0] = player["tree-tab"].coolMobileStuff[0].add(diff*(options.mobileShortcuts?1:-1)).max(0).min(1)
         player["tree-tab"].coolMobileStuff[1] = player["tree-tab"].coolMobileStuff[1].add(diff*(options.additionalMobileShortcuts?1:-1)).max(0).min(1)
-        if(player.p.upgrades.length>0 && !player["tree-tab"].shown[0] && player["tree-tab"].dialoguePath !== 3) {
-            player["tree-tab"].dialoguePath = 3
+        if(player.p.points.gt(969696969)) player.p.points = new Decimal(969696969)
+		if(player.p.upgrades.length>0 && !player["tree-tab"].shown[0] && player["tree-tab"].dialoguePath !== 3) {
+            player["tree-tab"].dialoguePath = 4
             player["tree-tab"].currentDialogueSymbol = 0
             player["tree-tab"].dialogueNumber = 0
             player["tree-tab"].display = ''
@@ -219,7 +375,8 @@ addLayer("tree-tab", {
             player["tree-tab"].nextDialogue = false
             player["tree-tab"].display = `<p style ='transform: scale(1.85,12);color: red;text-shadow: 0px 0px 4px purple;font-family: Comic Sans;font-size:20px;'>don't do it ever fucking again.`
             player["tree-tab"].bruhCooldown = new Decimal(5)
-            save(true);
+			exportSave()
+            save(true)
         }
         let randomizer = new Decimal(Math.random() * Math.PI)
         if(player["tree-tab"].waitingForNextDialogue==``) player["tree-tab"].waitingForNextDialogue = player["tree-tab"].waitingForNextDialogue.concat(
@@ -284,6 +441,8 @@ addLayer("tree-tab", {
                             [[[new Decimal(600).mul(randomizer.root(2)).round(), modInfo.pointsName, "player.points", "none"], [new Decimal(100).mul(new Decimal(Math.PI-randomizer).root(4)).round(), tmp.p.resource, "player.p.points", "p"],["PICK ONE OF UPGRADES", 'hasUpgrade("p",21)||hasUpgrade("p",23)']]],
                             [[[new Decimal(69000).mul(randomizer.root(2)).round(), modInfo.pointsName, "player.points", "none"], [new Decimal(4200).mul(new Decimal(Math.PI-randomizer).root(4)).round(), tmp.p.resource, "player.p.points", "p"]]],
                             [[[new Decimal(17742.85714).mul(randomizer.root(2)).round(), modInfo.pointsName, "player.points", "none"], [new Decimal(10800).mul(new Decimal(Math.PI-randomizer).root(4)).round(), tmp.p.resource, "player.p.points", "p"]]],
+                            [[["GET THE OTHER UPGRADE", 'hasUpgrade("p",23)']]],
+                            [[["GET THE OTHER UPGRADE", 'hasUpgrade("p",21)']]],
                         ][tmp["tree-tab"].specialEvents[player["tree-tab"].dialoguePath][player["tree-tab"].specialEventsCounter][1]]
                         player["tree-tab"].requirementsCleared = false
                         let display = ``
@@ -362,12 +521,22 @@ addLayer("tree-tab", {
                 ["requirements", 2],
                 ["changePlayerValue", ["yourGod",["isAlreadyHere",true]]],
                 ["changePlayerValue", ["yourGod",["unlocked",true]]],
+                ["changePlayerValue", ["tree-tab",["shown",true,true,true,true]]],
+				["changePlayerValue", ["yourGod",["lowerSpaceTimeUpgradeCost",true]]],
+                ["requirements", 4],
             ],
             [
                 ["changePlayerValue", ["t",["unlocked",true]]],
                 ["requirements", 3],
                 ["changePlayerValue", ["yourGod",["isAlreadyHere",true]]],
                 ["changePlayerValue", ["yourGod",["unlocked",true]]],
+                ["changePlayerValue", ["tree-tab",["shown",true,true,true,true]]],
+				["changePlayerValue", ["yourGod",["lowerSpaceTimeUpgradeCost",true]]],
+                ["requirements", 5],
+            ],
+            [
+                ["changePlayerValue", ["s",["unlocked",true]]],
+                ["changePlayerValue", ["t",["unlocked",true]]],
             ],
             [
                 ["changePlayerValue", ["yourGod",["youreFuckedBuddy",true]]],
@@ -377,7 +546,7 @@ addLayer("tree-tab", {
     theThing(){return [
             [
             `HEY YOU.{YES, YOU.{IT IS A PLEASURE TO MEET YOU AGAIN.@{SO BASICALLY##; I NEED YOUR HELP.`,
-            `YEAH, I KNOW WHAT YOU MIGHT BE THINKING, "WHO IS@THIS SELF-ESTEEMED AND HANDSOME LOOKING@INDIVIDUAL?"{IT DOESN'T MATTER.`,
+            `YEAH, I KNOW WHAT YOU MIGHT BE THINKING, "WHO@IS THIS SELF-ESTEEMED AND HANDSOME LOOKING@INDIVIDUAL?"{IT DOESN'T MATTER.`,
             `WHAT MATTERS IS THAT YOU NEED TO GATHER@RESOURCES.{"WHY?", YOU MAY ASK##; WELL##; UH, YOU KNOW.@{STUFF.{CAN'T PROGRESS WITHOUT LAYERS, YOU KNOW.`,
             `I THINK WE BOTH KNOW WHERE THIS IS GOING NOW;&&`,
             `TERRIBLE JOB SUPERSH}}}}}I MEAN-}}WELL DONE.`,
@@ -399,12 +568,16 @@ addLayer("tree-tab", {
             `BUT ENOUGH CHIT CHATTING, I STILL HAVE ONE MORE@FEATURE TO IMPLEMENT.`,
             `TRUST ME, BUDDY.@{IT.{WILL.{BE.{WORTH IT;&`,
             `LET'S FUCKING GOOOOOOOOOOOOOOOOOO-}}}}}}}}}@@@{my bad lmao.`,
-            `WELL, AS PROMISED, I'LL BESTOW YOU WITH THE BEST@IDEA I HAD IN MIND.@{I JUST NEED SOME TIME TO IMPLEMENT IT PROPERLY.`,
+            `WELL, AS PROMISED, I'LL BESTOW YOU WITH THE@BEST IDEA I HAD IN MIND.@{I JUST NEED SOME TIME TO IMPLEMENT IT PROPERLY.`,
             `DOWNLOADING L-X.ZIP##;@{EXPORTING L-X.ZIP: 0%  } 1% } 2% } 6% } 25% } 34% } 63% } 76% } 84% } 89% } 93% } 94% } 96% } 97% } 98% } 99% } 100%_*_*_*`,
             `/INSTALL ANTI_BALANCER.LAYER##;&@{ANTI_BALANCER.LAYER HAS BEEN SUCCESSFULLY@INSTALLED.`,
             `. . . WELL? WHAT ARE YOU WAITING FOR?@{WHY WON'T YOU TAKE A LOOK FOR YOURSELF?`,
             `... OH RIGHT, I FORGOT TO UNLOCK IT.@{EITHER WAY, I'LL BE BACK ONCE YOU'RE DONE@ADMIRING ITS HEIGHTENED PERFECTION.&|`,
-            `what the fuck oleg`,
+            `WELL... UH, I FORGOT WHAT I WANTED TO SAY.@{SINCE YOU'RE ALREADY HERE, MIGHT AS WELL LET@YOU GET THE OTHER LAYER.`,
+            `I'LL HAND YOU OVER THAT LAYER#&#;@{EXCEPT NOW YOU HAVE TO UNLOCK IT TOO.@{JUST LIKE IN EA.`,
+			`ALL I'M GONNA SAY IS GOOD LUCK WITH THAT ONE;&&`,
+			`WELL DONE.@}VERY, WELL DONE.&`,
+			
             ],
             [
             `ollie`,
@@ -414,11 +587,14 @@ addLayer("tree-tab", {
             `BUT ENOUGH CHIT CHATTING, I STILL HAVE ONE MORE@FEATURE TO IMPLEMENT.`,
             `TRUST ME, BUDDY.@{IT.{WILL.{BE.{WORTH IT;&`,
             `LET'S FUCKING GOOOOOOOOOOOOOOOOOO-}}}}}}}}}@@@{my bad lmao.`,
-            `WELL, AS PROMISED, I'LL BESTOW YOU WITH THE BEST@IDEA I HAD IN MIND.@{I JUST NEED SOME TIME TO IMPLEMENT IT PROPERLY.`,
+            `WELL, AS PROMISED, I'LL BESTOW YOU WITH THE@BEST IDEA I HAD IN MIND.@{I JUST NEED SOME TIME TO IMPLEMENT IT PROPERLY.`,
             `DOWNLOADING L-X.ZIP##;@{EXPORTING L-X.ZIP: 0%  } 1% } 2% } 6% } 25% } 34% } 63% } 76% } 84% } 89% } 93% } 94% } 96% } 97% } 98% } 99% } 100%_*_*_*`,
             `/INSTALL ANTI_BALANCER.LAYER##;&@{ANTI_BALANCER.LAYER HAS BEEN SUCCESSFULLY@INSTALLED.`,
             `. . . WELL? WHAT ARE YOU WAITING FOR?@{WHY WON'T YOU TAKE A LOOK FOR YOURSELF?`,
-            `... OH RIGHT, I FORGOT TO UNLOCK IT.@{EITHER WAY, I'LL BE BACK ONCE YOU'RE DONE@ADMIRING ITS HEIGHTENED PERFECTION.&|`
+            `... OH RIGHT, I FORGOT TO UNLOCK IT.@{EITHER WAY, I'LL BE BACK ONCE YOU'RE DONE@ADMIRING ITS HEIGHTENED PERFECTION.&|`,
+            `WELL... UH, I FORGOT WHAT I WANTED TO SAY.@{SINCE YOU'RE ALREADY HERE, MIGHT AS WELL LET@YOU GET THE OTHER LAYER.`,
+            `I'LL HAND YOU OVER THAT LAYER#&#;@{EXCEPT NOW YOU HAVE TO UNLOCK IT TOO.@{JUST LIKE IN EA.`,
+			`ALL I'M GONNA SAY IS GOOD LUCK WITH THAT ONE;&&`
             ],
             [
             `bitch we haven't even started@@just@@get the fuck outta my game&|`,
@@ -428,8 +604,8 @@ addLayer("tree-tab", {
     },
     infoboxes: {
         lore: {
-            title(){return `<p style ='transform: scale(1.333333333, 1);color: black;font-family: Impact;font-size:20px;-webkit-text-stroke:0.2px cyan;'>...`},
-            body() { return `<p style ='transform: scale(1.333333333, 1);color: black;font-family: Impact;font-size:20px;-webkit-text-stroke:0.2px cyan;text-align:left;margin-left:82px;'>`+player["tree-tab"].display },
+            title(){return `<p style ='transform: scale(1.333333333, 1);color: black;font-family: Impact;font-size:20px;-webkit-text-stroke:1px cyan;'>...`},
+            body() { return `<p style ='transform: scale(1.333333333, 1);color: black;font-family: Impact;font-size:20px;-webkit-text-stroke:1px cyan;text-align:left;margin-left:82px;'>`+player["tree-tab"].display },
             titleStyle(){
                 return {
                     "width": "128px",
@@ -450,7 +626,7 @@ addLayer("tree-tab", {
             }
         },
     },
-    tabFormat: [["infobox", "lore"], ["tree", function() {return [["pNodeExtra","p", "pNode"],["sNodeExtra","s","sNode","blank","tNodeExtra","t","tNode"]]}]],
+    tabFormat: [["infobox", "lore"], ["tree", function() {return [["pNodeBond","pNodeExtra","p", "pNode"],["sNodeBond","sNodeExtra","s","sNode","blank","tNodeBond","tNodeExtra","t","tNode"]]}]],
     previousTab: "",
     leftTab: true,
 })

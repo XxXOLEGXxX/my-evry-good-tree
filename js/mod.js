@@ -1,5 +1,5 @@
 let modInfo = {
-	name: "The ??? Tree",
+	name: "My Very Good Tree 2",
 	id: "TGVM",
 	author: "LaecFUCKYOUBITCHTHOUGHTTHEYWERESMARTASSES",
 	pointsName: "points",
@@ -14,13 +14,16 @@ let modInfo = {
 // Set your version in num and name
 let VERSION = {
 	num: "0.1",
-	name: "Literally nothing",
+	name: "New Beginning",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
-	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+	<h3>v0.1: New Beginning</h3><br>
+		- Starts off with 3 main layers.<br>
+		- Hidden Lore??!?!????.<br>
+		- Some goddamn decent mobile QoLs<br>
+		- Some secrets were added as well<Br>
+		- orange cat wasn't added much to everyone's disappointment<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -43,7 +46,7 @@ function getPointGen() {
 		return new Decimal(0)
 
 	let gain = new Decimal(0).add(tmp.yourGod.buyables[11].effect).mul(tmp.yourGod.buyables[12].effect).mul(tmp.yourGod.buyables[22].effect).pow(tmp.yourGod.buyables[13].effect)
-    if(hasUpgrade("p",11)) gain = gain.add(1)
+    if(hasUpgrade("p",11) || (!hasUpgrade("p",11) && player.p.points.lt(1) && player.points.lt(10)) && gain.eq(0)) gain = gain.add(1)
     if(hasUpgrade("p",12)) gain = gain.add(1)
         
     if(hasUpgrade("p",13)) gain = gain.mul(upgradeEffect("p",13))
@@ -54,6 +57,9 @@ function getPointGen() {
     if(hasUpgrade("s",11)) gain = gain.mul(tmp.s.upgrades[11].effect)
     if(hasUpgrade("t",13)) gain = gain.mul(tmp.t.upgrades[13].effect)
     if(hasUpgrade("t",21)) gain = gain.mul(tmp.t.upgrades[21].effect)
+    if(hasUpgrade("t",23)) gain = gain.mul(tmp.t.upgrades[12].effect)   
+	if(gain.gte(277777,7777777778)) gain = gain = gain.pow(new Decimal(1/3600).mul(player.a.finalStatsRPG[1]).min(3600)).times(new Decimal(277777,7777777778).pow(decimalOne.sub(new Decimal(1/3600).mul(player.a.finalStatsRPG[1]).min(1))))
+	gain = gain.mul(tmp.her.buyables["level4"].effect)
 	return !(player["tree-tab"].didyoujustcloseonme[0]=='') ? new Decimal(0) : gain
 }
 
@@ -63,6 +69,14 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
+	function(){ 
+		let displayShit = ``
+		displayShit = displayShit+(player.yourGod.selectedQuest!==4?`${["Strength","Agility","Intelligence"][player.yourGod.selectedQuest-1]} Quest progression: ${format(eval(player.yourGod.quests[player.yourGod.selectedQuest-1][0][2]))} / ${format(player.yourGod.quests[player.yourGod.selectedQuest-1][0][0])} ${player.yourGod.quests[player.yourGod.selectedQuest-1][0][1]} (${formatTime(player.yourGod.quests[i][1][0])} left)<br>`:``)
+		displayShit = displayShit+(getPointGen().gte(277777,7777777778)?`Your point gain is raised to the power of ^${format(new Decimal(1).div(new Decimal(3600).div(player.a.finalStatsRPG[1])).min(1))}. FUCK YOU.`:"")
+		if(player.p.points.gte(969696969)) displayShit = displayShit+`<br>"I'm sorry Dave, I'm afraid I can't do that"`
+		if(player["tree-tab"].youShouldStopYourselfNOW) displayShit = `<h1>THE TIME HAS BEEN STOPPED.<br>[ENDGAME]`
+		return displayShit
+	}
 ]
 
 // Determines when the game "ends"
