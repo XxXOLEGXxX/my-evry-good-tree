@@ -1,7 +1,7 @@
 let modInfo = {
 	name: "My Very Good Tree 2",
 	id: "TGVM",
-	author: "LaecFUCKYOUBITCHTHOUGHTTHEYWERESMARTASSES",
+	author: "Oleg (CheeseOverlord)",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 
