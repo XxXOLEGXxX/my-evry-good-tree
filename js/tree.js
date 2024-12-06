@@ -333,6 +333,7 @@ addLayer("tree-tab", {
         shown: [false, false, false, false]
     }},
     update(diff){ 
+		if(player["tree-tab"].versionVibeCheck=="0.1") player["tree-tab"].versionVibeCheck = "0.1.0.1"
 		if(player["tree-tab"].youShouldStopYourselfNOW) player.devSpeed = -1.7976931348623157e+308
         player["tree-tab"].coolMobileStuff[0] = player["tree-tab"].coolMobileStuff[0].add(diff*(options.mobileShortcuts?1:-1)).max(0).min(1)
         player["tree-tab"].coolMobileStuff[1] = player["tree-tab"].coolMobileStuff[1].add(diff*(options.additionalMobileShortcuts?1:-1)).max(0).min(1)
@@ -358,7 +359,7 @@ addLayer("tree-tab", {
             if(player["tree-tab"].bruhCooldown.lte(0)){
                 player["tree-tab"].waitingForNextDialogue = player["tree-tab"].didyoujustcloseonme[2]
                 player["tree-tab"].nextDialogue = player["tree-tab"].didyoujustcloseonme[1]
-                player["tree-tab"].display = player["tree-tab"].didyoujustcloseonme[0]
+                player["tree-tab"].display = player["tree-tab"].didyoujustcloseonme[0].slice(0,-5)
                 player["tree-tab"].didyoujustcloseonme[0] = ''
             }
         }
@@ -369,11 +370,11 @@ addLayer("tree-tab", {
         }
         if(player.infoboxes["tree-tab"]["lore"]){
             player.infoboxes["tree-tab"]["lore"] = false
-            player["tree-tab"].didyoujustcloseonme[0] = player["tree-tab"].display
+            player["tree-tab"].didyoujustcloseonme[0] = player["tree-tab"].display+"Noise"
             player["tree-tab"].didyoujustcloseonme[1] = player["tree-tab"].nextDialogue
             player["tree-tab"].didyoujustcloseonme[2] = player["tree-tab"].waitingForNextDialogue
             player["tree-tab"].nextDialogue = false
-            player["tree-tab"].display = `<p style ='transform: scale(1.85,12);color: red;text-shadow: 0px 0px 4px purple;font-family: Comic Sans;font-size:20px;'>don't do it ever fucking again.`
+            player["tree-tab"].display = `<br><br><br><p style ='transform: scale(1.85,12);color: red;text-shadow: 0px 0px 4px purple;font-family: Comic Sans MS;font-size:20px;'>don't do it ever again.</p><br><br><br><br><br><br><br><h5 style='opacity:0.5;color:white'>(please)<br>(-CheeseOverlord)`
             player["tree-tab"].bruhCooldown = new Decimal(5)
 			exportSave()
             save(true)

@@ -52,6 +52,42 @@ function toggleAuto(toggle) {
 	needCanvasUpdate=true
 }
 
+function secretPlz(){
+	if(player["???"].whatAreYouDoing>=9){
+                player.tab="???"
+                player["???"].whatAreYouDoing=0
+                let lol = prompt("ENTER THE CODE")
+				if (lol == null) lol = "cancel"
+                switch(lol.toLowerCase()){
+                    case "xeikar":
+                        player.subtabs["???"].mainTabs = "xeikar"
+                        break;
+                    case "guide":
+                        player.subtabs["???"].mainTabs = "guide"
+                        break;
+                    case "options":
+                        player.subtabs["???"].mainTabs = "options"
+                        break;
+                    case "avgn":
+                        player.subtabs["???"].mainTabs = "avgn"
+						document.getElementById("avgn").play()
+                        break;
+                    case "terminal":
+						alert("You're going straight to TERMINAL buddy.")
+                        window.location.href = "https://angusnicneven.com/lookuponthisansweranytime";
+                        break;
+                    case "cancel":
+						player.tab = "none"
+                        break;
+                    default:
+                        alert("L + ratio, bozo")
+                        player.tab = "none"
+                        break;
+                }
+            }
+            else player["???"].whatAreYouDoing=player["???"].whatAreYouDoing+1
+}
+
 function limitThiShitPlease(lmao,stuff,negatives,decimals) {
 	let numbah = []
 	for(i=0;i<lmao.length;i++){

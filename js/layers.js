@@ -1381,40 +1381,6 @@ addLayer("???", {
     name: "help",
     position: 999999999999,
     symbol: "P",
-    hotkeys: [
-        {key: "?", description: "", onPress(){
-            if(player["???"].whatAreYouDoing>=9){
-                player.tab="???"
-                player["???"].whatAreYouDoing=0
-                let lol = prompt("ENTER THE CODE")
-                switch(lol.toLowerCase()){
-                    case "xeikar":
-                        player.subtabs["???"].mainTabs = "xeikar"
-                        break;
-                    case "guide":
-                        player.subtabs["???"].mainTabs = "guide"
-                        break;
-                    case "options":
-                        player.subtabs["???"].mainTabs = "options"
-                        break;
-                    case "avgn":
-                        player.subtabs["???"].mainTabs = "avgn"
-						document.getElementById("avgn").play()
-                        break;
-                    case "terminal":
-						alert("You're going straight to TERMINAL buddy.")
-                        window.location.href = "https://angusnicneven.com/lookuponthisansweranytime";
-                        break;
-                    default:
-                        alert("L + ratio, bozo")
-                        player.tab = "none"
-                        break;
-                }
-            }
-            else player["???"].whatAreYouDoing=player["???"].whatAreYouDoing+1
-            }
-        },
-    ],
     color: "yellow",
     row: "side", // Row the layer is in on the tree (0 is the first row)
     tabFormat: {

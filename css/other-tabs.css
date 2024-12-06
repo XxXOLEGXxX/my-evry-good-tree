@@ -106,6 +106,14 @@ a {
 	cursor: pointer;
 }
 
+.secret {
+	background-color: black;
+	border-color: black;
+	border: 0px solid;
+	color: black;
+	cursor: pointer;
+}
+
 .opt:hover {
 	background-color: #439ea3;
 }

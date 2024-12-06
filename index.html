@@ -84,7 +84,7 @@
 			<img id="optionWheel" class="overlayThing" v-if="player.tab!='options-tab'" src="options_wheel.png"
 				onclick="showTab('options-tab')"></img>
 			<div id="info" v-if="player.tab!='info-tab'" class="overlayThing" onclick="showTab('info-tab')"><br>i</div>
-			<div id="discord" class="overlayThing">
+			<button class="secret" onclick="secretPlz()"><div id="discord" class="overlayThing">
 				<img onclick="window.open((modInfo.discordLink ? modInfo.discordLink : 'https://discord.gg/F3xveHV'),'mywindow')"
 					src="discord.png" target="_blank"></img>
 				<ul id="discord-links">
@@ -96,7 +96,7 @@
 					<li><a class="link" href="http://discord.gg/wwQfgPa" target="_blank"
 							v-bind:style="{'font-size': '16px'}">Main Prestige Tree server</a></li>
 				</ul>
-			</div>
+			</div></button>
 			<overlay-head v-if="!(tmp.gameEnded && !player.keepGoing)"></overlay-head>
 			<div class="sideLayers">
 				<div v-for="(node, index) in OTHER_LAYERS['side']">
