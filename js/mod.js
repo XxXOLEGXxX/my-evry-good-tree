@@ -13,11 +13,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
-	name: "New Beginning",
+	num: "0.1.0.1",
+	name: "dear god no",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<h5>v0.1.0.1: dear god no<br>
+		- Fixed bug involving dialog softlocking players (and added comic sans for real this time)
+		- Replaced method of accessing secret menu due mobile players not having ability to access it
 	<h3>v0.1: New Beginning</h3><br>
 		- Starts off with 3 main layers.<br>
 		- Hidden Lore??!?!????.<br>
