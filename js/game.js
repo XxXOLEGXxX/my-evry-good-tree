@@ -27,6 +27,7 @@ function getResetGain(layer, useType = null) {
 		let gain = tmp[layer].baseAmount.div(tmp[layer].requires).pow(tmp[layer].exponent).add(tmp[layer].gainAdd).times(tmp[layer].gainMult).pow(tmp[layer].gainExp)
 		if (gain.gte(tmp[layer].softcap)) gain = gain.pow(tmp[layer].softcapPower).times(tmp[layer].softcap.pow(decimalOne.sub(tmp[layer].softcapPower)))
 		gain = gain.times(tmp[layer].directMult)
+		if(player.her.timeline[1]==1) gain = gain.root(2)
 		return gain.floor().max(0);
 	} else if (type=="custom"){
 		return layers[layer].getResetGain()
@@ -58,7 +59,7 @@ function getNextAt(layer, canMax=false, useType = null) {
 		if (tmp[layer].roundUpCost) cost = cost.ceil()
 		return cost;
 	} else if (type=="normal"){
-		let next = tmp[layer].resetGain.add(1).div(tmp[layer].directMult)
+		let next = tmp[layer].resetGain.add(1).pow(player.her.timeline[1]==1?2:1).div(tmp[layer].directMult)
 		if (next.gte(tmp[layer].softcap)) next = next.div(tmp[layer].softcap.pow(decimalOne.sub(tmp[layer].softcapPower))).pow(decimalOne.div(tmp[layer].softcapPower))
 		next = next.root(tmp[layer].gainExp).div(tmp[layer].gainMult).sub(tmp[layer].gainAdd).root(tmp[layer].exponent).times(tmp[layer].requires).max(tmp[layer].requires)
 		if (tmp[layer].roundUpCost) next = next.ceil()
@@ -402,15 +403,24 @@ var interval = setInterval(function() {
 	let diff = (now - player.time) / 1e3
 	let trueDiff = diff
 	if (player.offTime !== undefined) {
+		if (options.offTimeStatus && !options.hiddenOffTimeStatus) {
+			player["tree-tab"].storedOffPoints = player["tree-tab"].storedOffPoints.add(player.offTime.remain*options.offTimePercent)
+			player.offTime.remain = player.offTime.remain-player["tree-tab"].storedOffPoints
+		}
+		options.hiddenOffTimeStatus = true
 		if (player.offTime.remain > modInfo.offlineLimit * 3600) player.offTime.remain = modInfo.offlineLimit * 3600
 		if (player.offTime.remain > 0) {
 			let offlineDiff = Math.max(player.offTime.remain / 10, diff)
 			player.offTime.remain -= offlineDiff
 			diff += offlineDiff
 		}
-		if (!options.offlineProd || player.offTime.remain <= 0) player.offTime = undefined
+		if (!options.offlineProd || player.offTime.remain <= 0) {
+			player.offTime = undefined
+			options.hiddenOffTimeStatus = false
+		}
 	}
 	if (player.devSpeed) diff *= player.devSpeed
+	if (player.her.fuckOFFIMALLOWEDTOCHEATNOW!=1) diff *= player.her.fuckOFFIMALLOWEDTOCHEATNOW
 	player.time = now
 	if (needCanvasUpdate){ resizeCanvas();
 		needCanvasUpdate = false;

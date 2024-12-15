@@ -6,6 +6,74 @@ function save(force) {
 	localStorage.setItem(modInfo.id+"_options", btoa(unescape(encodeURIComponent(JSON.stringify(options)))));
 
 }
+
+function timelineShenanigans(iAmHere, imGoingThere) {
+	if(iAmHere==imGoingThere){
+		alert(`...`)
+		alert(`Looks like the machine isn't working when attempting to travel to the same universe.`)
+	}
+	else{
+		if(imGoingThere==0){ 
+			let fuckYou = JSON.parse(player.her.timelineSave)
+			fuckYou.her.timelinePoints = player.her.timelinePoints
+			fuckYou.her.buyables["level1"] = player.her.buyables["level1"]
+			fuckYou.her.buyables["level2"] = player.her.buyables["level2"]
+			fuckYou.her.buyables["level3"] = player.her.buyables["level3"]
+			fuckYou.her.buyables["level4"] = player.her.buyables["level4"]
+			fuckYou.her.buyables["level5"] = player.her.buyables["level5"]
+			fuckYou.her.buyables["level6"] = player.her.buyables["level6"]
+			fuckYou.her.experience = player.her.experience
+			fuckYou.her.levels = player.her.levels
+			importSave(btoa(JSON.stringify(fuckYou)), true)
+			player.her.timelineSave = ""
+		}
+		else{ 
+			if(player.her.timelineSave=="") player.her.timelineSave = JSON.stringify(player)
+			player.yourGod.selectedQuest = 4
+			tmp[["mainTimeline","rootTimeline","antiRPGTimeline"][imGoingThere]].onEnter()
+		}
+		player.her.timeline[1] = imGoingThere
+		save();
+		window.location.reload();
+	}
+}
+
+function saveFile(savefile) {
+	let state = prompt("Export or Import?")
+	if(state.toLowerCase()=="export"){
+		let str = options.saveFiles[savefile]
+		const el = document.createElement("textarea");
+		el.value = str;
+		document.body.appendChild(el);
+		el.select();
+		el.setSelectionRange(0, 99999);
+		document.execCommand("copy");
+		document.body.removeChild(el);
+	}
+	else if(state.toLowerCase()=="import"){
+		let imported = prompt("Paste your save here");
+		try {
+			tempPlr = Object.assign(getStartPlayer(), JSON.parse(atob(imported)));
+			if (tempPlr.versionType != modInfo.id ){
+				alert("I wouldn't put that into save file if I were you.")
+				return;
+			}
+			options.saveFileState[savefile][0] = [["Player","Space","Time"],["Player","Space","Time"]][JSON.parse(atob(imported))["her"].timeline[1]][JSON.parse(atob(imported))["tree-tab"].dialoguePath]
+			options.saveFileState[savefile][1] = JSON.parse(atob(imported))["timePlayed"];
+			options.saveFileState[savefile][2] = new Decimal(JSON.parse(atob(imported))["her"]["buyables"]["progress"]).gte(2)?true:false;
+			options.saveFileState[savefile][3] = JSON.parse(atob(imported))["her"]["timeline"][1];
+			options.saveFileState[savefile][4] = JSON.parse(atob(imported))["her"]["gameState"];
+			options.saveFiles[savefile] = imported;
+			fixSave();
+			versionCheck();
+			NaNcheck(save)
+			save();
+		} catch (e) {
+			return;
+		}
+	}
+}
+
 function startPlayerBase() {
 	return {
 		tab: layoutInfo.startTab,
@@ -205,7 +273,6 @@ function load() {
 	player.time = Date.now();
 	versionCheck();
 	changeTheme();
-	changeTreeQuality();
 	updateLayers();
 	setupModInfo();
 

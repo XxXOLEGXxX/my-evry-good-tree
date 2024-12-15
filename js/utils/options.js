@@ -4,11 +4,12 @@ let options = {}
 
 function getStartOptions() {
 	return {
-		autosave: true,
+		autosave: false,
 		msDisplay: "always",
 		theme: "default",
 		hqTree: false,
-		offlineProd: true,
+		hqStyle: ["","",""],
+		offlineProd: false,
 		hideChallenges: false,
 		showStory: true,
 		forceOneTab: false,
@@ -19,7 +20,15 @@ function getStartOptions() {
         precisionNumber: false,
         mobileShortcuts: false,
         additionalMobileShortcuts: false,
-        pissLimit: [new Decimal(100),new Decimal(100)],
+        pissLimit: [new Decimal(100),new Decimal(100),new Decimal(100),new Decimal(100)],
+		musicMute: false,
+		fontSpeed: 1, 
+		currentTab: 0,
+		offTimeStatus: false,
+		offTimePercent: 0,
+		hiddenOffTimeStatus: false, 
+		saveFiles: ["","","","","","","","",""],
+		saveFileState: [["",0,false,0,0],["",0,false,0,0],["",0,false,0,0],["",0,false,0,0],["",0,false,0,0],["",0,false,0,0],["",0,false,0,0],["",0,false,0,0],["",0,false,0,0]]
 	}
 }
 
@@ -28,8 +37,6 @@ function toggleOpt(name) {
 		return;
 
 	options[name] = !options[name];
-	if (name == "hqTree")
-		changeTreeQuality();
 	if (name == "oldStyle")
 		updateStyle();
 }
@@ -39,13 +46,6 @@ function updateStyle() {
 	let css = document.getElementById("styleStuff");
 	css.href = options.oldStyle ? "oldStyle.css" : "style.css";
 	needCanvasUpdate = true;
-}
-function changeTreeQuality() {
-	var on = options.hqTree;
-	document.body.style.setProperty('--hqProperty1', on ? "2px solid" : "4px solid");
-	document.body.style.setProperty('--hqProperty2a', on ? "-4px -4px 4px rgba(0, 0, 0, 0.25) inset" : "-4px -4px 4px rgba(0, 0, 0, 0) inset");
-	document.body.style.setProperty('--hqProperty2b', on ? "0px 0px 20px var(--background)" : "");
-	document.body.style.setProperty('--hqProperty3', on ? "2px 2px 4px rgba(0, 0, 0, 0.25)" : "none");
 }
 function toggleAuto(toggle) {
 	Vue.set(player[toggle[0]], [toggle[1]], !player[toggle[0]][toggle[1]]);
@@ -78,6 +78,12 @@ function secretPlz(){
                         break;
                     case "cancel":
 						player.tab = "none"
+                        break;
+					case "Game.RuinTheFun()":
+                        window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+                        break;
+					case "dQw4w9WgXcQ":
+                        window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
                         break;
                     default:
                         alert("L + ratio, bozo")

@@ -226,7 +226,7 @@ function loadVue() {
 		template: `
 		<button v-if="(tmp[layer].type !== 'none')" v-bind:class="{ [layer]: true, reset: true, locked: !tmp[layer].canReset, can: tmp[layer].canReset}"
 			v-bind:style="[tmp[layer].canReset ? {'background-color': tmp[layer].color} : {}, tmp[layer].componentStyles['prestige-button']]"
-			v-html="prestigeButtonText(layer)" @mousedown="start" @mouseleave="stop" @mouseup="stop" @touchstart="start" @touchend="stop" @touchcancel="stop""> doReset(layer)
+			v-html="prestigeButtonText(layer)" @mousedown="start" @mouseleave="stop" @mouseup="stop" @touchstart="start" @touchend="stop" @touchcancel="stop"> doReset(layer)
 		</button>
 		`,
 		data() { return { interval: false, click: false, time: 0,}},
@@ -606,7 +606,7 @@ function loadVue() {
 		props: ['layer', 'data'],
 		template: `
 			<button v-if="tmp[layer].buyables && tmp[layer].buyables[data].sellOne && !(tmp[layer].buyables[data].canSellOne !== undefined && tmp[layer].buyables[data].canSellOne == false)" v-on:click="run(tmp[layer].buyables[data].sellOne, tmp[layer].buyables[data])"
-				v-bind:class="{ longUpg: true, can: player[layer].unlocked, locked: !player[layer].unlocked }">{{tmp[layer].buyables.sellOneText ? tmp[layer].buyables.sellOneText : "Sell One"}}</button>
+				v-bind:class="{ can: player[layer].unlocked, locked: !player[layer].unlocked }" v-bind:style="tmp[layer].buyables[data].sellOneStyle">{{tmp[layer].buyables[data].sellOneText ? tmp[layer].buyables[data].sellOneText : "Sell One"}}</button>
 	`
 	})
 	Vue.component('sell-all', {

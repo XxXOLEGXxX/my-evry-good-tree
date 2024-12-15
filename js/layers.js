@@ -37,14 +37,17 @@ addLayer("yourGod", {
         selectedQuest: 4,
 		questsDone: new Decimal(0),
 		lowerSpaceTimeUpgradeCost: false,
-        youreFuckedBuddy: false
+        youreFuckedBuddy: false,
     }},
     tooltip: "It's-a-me,",
     color: "rgb(52,52,152)",
     row: "side", // Row the layer is in on the tree (0 is the first row)
     position: 1,
-	shouldNotify(){return (player.her.herLog[1]==1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))},
-	glowColor(){return "rgb("+Math.random()*127+","+Math.random()*127+","+Math.random()*127+")"},
+	nodeStyle(){return{
+		"border": options.hqStyle[0].substr(1),
+        "text-shadow": options.hqStyle[2].substr(1),
+		"box-shadow": (((!player.her.sheWasSeen || (player.her.herLog[1]>=1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))) && player.yourGod.unlocked) ?"0px 0px 10px rgba("+Math.random()*127+",0,0,"+(Math.random()*0.2+0.8)+"),0px 0px 52px rgba("+Math.random()*127+",0,"+Math.random()*255+","+(Math.random()*0.4+0.6)+"),0px 0px 100px rgba("+Math.random()*255+","+Math.random()*255+","+Math.random()*255+","+(Math.random()*0.4+0.6)+")":"0px 0px 0px rgba(0,0,0,0)")+options.hqStyle[1]
+	}},
 	update(myCore){
         if(player.yourGod.youreFuckedBuddy){ 
             player = getStartPlayer()
@@ -56,7 +59,7 @@ addLayer("yourGod", {
             player.yourGod.bestPointsThusFar[i] = player.yourGod.bestPointsThusFar[i].max([player.points,player.p.points,player.s.points,player.t.timePoints][i])
             player.yourGod.bestPassivePointGainThusFar[i] = player.yourGod.bestPassivePointGainThusFar[i].max([getPointGen(),getResetGain("p").mul(tmp.p.passiveGeneration),getResetGain("s").mul(tmp.s.passiveGeneration),tmp.t.timeGain][i])
 		}
-        if(player.yourGod.hasBeenSeen){
+        if(player.yourGod.hasBeenSeen && player.her.timeline[1]==0){
             for(i=0;i<3;i++){
 				if(typeof player.yourGod.quests[i][0][0] == "string") player.yourGod.quests[i][0][0] = new Decimal(player.yourGod.quests[i][0][0])
 				if(typeof player.yourGod.quests[i][0][4] == "string") player.yourGod.quests[i][0][4] = new Decimal(player.yourGod.quests[i][0][4])
@@ -100,7 +103,7 @@ addLayer("yourGod", {
 					let randomizeIt = Math.floor(Math.random()*(4))
 					let requirementExponent = new Decimal(player.yourGod.quests[i][1][1]).mul((player.yourGod.quests[i][1][1]).add(1)).div(2).sub(1).div(100).add(1)
 					player.yourGod.quests[i][0][0] = player.yourGod.bestPointsThusFar[randomizeIt].gt(0)?player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][i]:[1,8,27][i]).pow(requirementExponent).div(tmp.her.buyables["level6"].effect):new Decimal(0)
-					while(player.yourGod.quests[i][0][0].lte(0) && player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
+					while(player.yourGod.quests[i][0][0].lte(0) || player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
 						randomizeIt = Math.floor(Math.random()*(4))
 						player.yourGod.quests[i][0][0] = player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][i]:[1,8,27][i]).pow(requirementExponent).div(tmp.her.buyables["level6"].effect)
 					}
@@ -109,20 +112,32 @@ addLayer("yourGod", {
 					player.yourGod.quests[i][0][3] = [0,1,2,3][randomizeIt]
 					player.yourGod.quests[i][0][4] = Decimal.pow(7/6, player.yourGod.quests[0][1][1]).sub(1)
 					player.yourGod.quests[i][1][0] = new Decimal(420).mul(player.yourGod.quests[i][1][1])
+					player.yourGod.questsDone=player.yourGod.questsDone.add(1)
 				}
 				if(player.yourGod.quests[i][1][0].lte(0)){
-					player.yourGod.quests[i][1][1] = new Decimal(1)
-					let randomizeIt = Math.floor(Math.random()*(4))
-					player.yourGod.quests[i][0][0] = player.yourGod.bestPointsThusFar[randomizeIt].gt(0)?player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][i]:[1,8,27][i]).div(tmp.her.buyables["level6"].effect):new Decimal(0)
-					while(player.yourGod.quests[i][0][0].lte(0) && player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
-						randomizeIt = Math.floor(Math.random()*(4))
-						player.yourGod.quests[i][0][0] = player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][i]:[1,8,27][i]).div(tmp.her.buyables["level6"].effect)
+					if(player.yourGod.quests[i][1][1].gte(2)){
+						let prevRequirementExponent = new Decimal(player.yourGod.quests[i][1][1]).mul((player.yourGod.quests[i][1][1]).add(1)).div(2).sub(1).div(100).add(1)
+						player.yourGod.quests[i][1][1] = player.yourGod.quests[i][1][1].sub(1).max(1)
+						let requirementExponent = new Decimal(player.yourGod.quests[i][1][1]).mul((player.yourGod.quests[i][1][1]).add(1)).div(2).sub(1).div(100).add(1)
+						let questSave = player.yourGod.quests[i][0][0]
+						player.yourGod.quests[i][0][0] = questSave.root(prevRequirementExponent).pow(requirementExponent)
+						player.yourGod.quests[i][0][4] = Decimal.pow(7/6, player.yourGod.quests[i][1][1]).sub(1)
+						player.yourGod.quests[i][1][0] = new Decimal(420).mul(player.yourGod.quests[i][1][1])
 					}
-					player.yourGod.quests[i][0][1] = [`Points`,`Prestige Points`,`Spaces`,`Time Points`][randomizeIt]
-					player.yourGod.quests[i][0][2] = [`player.points`,`player.p.points`,`player.s.points`,`player.t.timePoints`][randomizeIt]
-					player.yourGod.quests[i][0][3] = [0,1,2,3][randomizeIt]
-					player.yourGod.quests[i][0][4] = Decimal.pow(7/6, player.yourGod.quests[i][1][1]).sub(1)
-					player.yourGod.quests[i][1][0] = new Decimal(420).mul(player.yourGod.quests[i][1][1])
+					else{
+						let randomizeIt = Math.floor(Math.random()*(4))
+						player.yourGod.quests[i][0][0] = player.yourGod.bestPointsThusFar[randomizeIt].gt(0)?player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][0]:[1,8,27][0]).div(tmp.her.buyables["level6"].effect):new Decimal(0)
+						while(player.yourGod.quests[i][0][0].lte(0) || player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
+							randomizeIt = Math.floor(Math.random()*(4))
+							player.yourGod.quests[i][0][0] = player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?3:8).div(tmp.her.buyables["level6"].effect)
+						}
+						player.yourGod.quests[i][0][1] = [`Points`,`Prestige Points`,`Spaces`,`Time Points`][randomizeIt]
+						player.yourGod.quests[i][0][4] = Decimal.pow(7/6, 1).sub(1)
+						player.yourGod.quests[i][1][1] = new Decimal(1)
+						player.yourGod.quests[i][0][2] = [`player.points`,`player.p.points`,`player.s.points`,`player.t.timePoints`][randomizeIt]
+						player.yourGod.quests[i][0][3] = [0,1,2,3][randomizeIt]
+						player.yourGod.quests[i][1][0] = new Decimal(420)
+					}
 				}
             }
         }
@@ -149,6 +164,8 @@ addLayer("yourGod", {
 			document.getElementById("idAudio2").currentTime = 0
             player.yourGod.musicTime = 0
         }
+		document.getElementById("idAudio1").volume = options.musicMute?0:1
+        document.getElementById("idAudio2").volume = options.musicMute?0:1
         if(player.yourGod.isAlreadyHere && player.tab == 'yourGod' || player.tab == 'her') {
             player.yourGod.tabCheck = player.yourGod.tabCheck=="idk"?options.forceOneTab:player.yourGod.tabCheck
             options.forceOneTab = true
@@ -170,34 +187,34 @@ addLayer("yourGod", {
         space1:{ 
             title(){return `<h1 style='color: white;font-size: 20px;'>`+(player.s.unlocked?`4th Dimension`:`[LOCKED]`)},
             description(){return `<h1 style='color: white;font-size: 12px;'>`+(player.s.unlocked?`Unlocks "Time of Spissitude"<br>(nerfs your total size effect)<br>Cost: 1 Perk Point`:`You gotta unlock Space layer first, you silly goose.`)},
-            canAfford(){return player.yourGod.perkPoints.gte(this.cost()) && !hasUpgrade("yourGod", this.id) && player.s.unlocked},
+            canAfford(){return new Decimal(player.yourGod.perkPoints).gte(this.cost()) && !hasUpgrade("yourGod", "space1") && player.s.unlocked},
             cost(){return new Decimal(1)},
 			currencyInternalName: "perkPoints",
 			currencyLayer: "yourGod",
             style(){return {
                 "height": "100px",
                 "width": "200px",
-                "color": (hasUpgrade("yourGod", this.id)?"rgb(31.875,31.875,31.875)":"black"),
+                "color": (hasUpgrade("yourGod", "space1")?"rgb(31.875,31.875,31.875)":"black"),
                 "border-radius": "0%",
                 "border": "4px rgba(255,255,255,0.125) solid",
-                "background-color": (hasUpgrade("yourGod", this.id)?"rgb(31.875,31.875,31.875)":"black")
+                "background-color": (hasUpgrade("yourGod", "space1")?"rgb(31.875,31.875,31.875)":"black")
             }},
             unlocked(){return true}
         },
         time1:{ 
             title(){return `<h1 style='color: black;font-size: 20px;'>`+(player.t.unlocked?`Time Bar`:`[LOCKED]`)},
-            description(){return `<h1 style='color: black;font-size: 12px;'>`+(player.t.unlocked?`Unlocks bars for Time buyables<br>Cost: 1 Perk Point`:`You gotta unlock Space layer first, you silly goose.`)},
-            canAfford(){return player.yourGod.perkPoints.gte(this.cost()) && !hasUpgrade("yourGod", this.id) && player.t.unlocked},
+            description(){return `<h1 style='color: black;font-size: 12px;'>`+(player.t.unlocked?`Unlocks bars for Time buyables<br>Cost: 1 Perk Point`:`You gotta unlock Time layer first, you silly goose.`)},
+            canAfford(){return new Decimal(player.yourGod.perkPoints).gte(this.cost()) && !hasUpgrade("yourGod", "time1") && player.t.unlocked},
             cost(){return new Decimal(1)},
 			currencyInternalName: "perkPoints",
 			currencyLayer: "yourGod",
             style(){return {
                 "height": "100px",
                 "width": "200px",
-                "color": (hasUpgrade("yourGod", this.id)?"rgb(223.125,223.125,223.125)":"white"),
+                "color": (hasUpgrade("yourGod", "time1")?"rgb(223.125,223.125,223.125)":"white"),
                 "border-radius": "0%",
                 "border": "4px rgba(0,0,0,0.125) solid",
-                "background-color": (hasUpgrade("yourGod", this.id)?"rgb(223.125,223.125,223.125)":"white")
+                "background-color": (hasUpgrade("yourGod", "time1")?"rgb(223.125,223.125,223.125)":"white")
             }},
             unlocked(){return true}
         },
@@ -205,125 +222,129 @@ addLayer("yourGod", {
     buyables: {
         11: {
             title(){return `Additional Point Massacre`},
-            display(){return `Adds up your point gain by 30 billion<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: +${format(tmp.yourGod.buyables[this.id].effect)} points<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(30000000000, player.yourGod.buyables[this.id])},
+            display(){return `Adds up your point gain by 73-ish million<br>Amount: ${formatWhole(player.yourGod.buyables[11])}<br>Effect: +${format(tmp.yourGod.buyables[11].effect)} points<br>Cost: ${formatWhole(tmp.yourGod.buyables[11].cost)} Anti Points`},
+            effect(){return Decimal.mul(Decimal.pow(9000, new Decimal(3.954242509439325).root(2)), player.yourGod.buyables[11])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[11].add(1).mul(player.yourGod.buyables[11].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
-            }
+                player.yourGod.buyables[11] = player.yourGod.buyables[11].add(1)
+            },
+			unlocked(){return player.her.timeline[1]==0},
         },
         12: { 
             title(){return `Multiplicative Point Scaler`},
-            display(){return `Multiplies your point gain by 9,000x<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: x${format(tmp.yourGod.buyables[this.id].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.pow(9000, player.yourGod.buyables[this.id])},
+            display(){return `Multiplies your point gain by 9,000x<br>Amount: ${formatWhole(player.yourGod.buyables[12])}<br>Effect: x${format(tmp.yourGod.buyables[12].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[12].cost)} Anti Points`},
+            effect(){return Decimal.pow(9000, player.yourGod.buyables[12])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[12].add(1).mul(player.yourGod.buyables[12].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
-            }
+                player.yourGod.buyables[12] = player.yourGod.buyables[12].add(1)
+            },
+			unlocked(){return player.her.timeline[1]==0},
         },
         13: { 
             title(){return `Power Point Presentation`},
-            display(){return `Exponentiates your point gain by 0.0027<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: ^${format(tmp.yourGod.buyables[this.id].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(0.0027, player.yourGod.buyables[this.id]).add(1)},
+            display(){return `Exponentiates your point gain by 0.0022<br>Amount: ${formatWhole(player.yourGod.buyables[13])}<br>Effect: ^${format(tmp.yourGod.buyables[13].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[13].cost)} Anti Points`},
+            effect(){return Decimal.mul(.0022241188054641, player.yourGod.buyables[13]).add(1)},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[13].add(1).mul(player.yourGod.buyables[13].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
-            }
+                player.yourGod.buyables[13] = player.yourGod.buyables[13].add(1)
+            },
+			unlocked(){return player.her.timeline[1]==0},
         },
         21: {
             title(){return `Spacial Dimension Duplicator`},
-            display(){return `You gain 3 additional Dimensions<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: +${format(tmp.yourGod.buyables[this.id].effect)} free Space buyables<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(3, player.yourGod.buyables[this.id])},
+            display(){return `You gain 3 additional Dimensions<br>Amount: ${formatWhole(player.yourGod.buyables[21])}<br>Effect: +${format(tmp.yourGod.buyables[21].effect)} free Space buyables<br>Cost: ${formatWhole(tmp.yourGod.buyables[21].cost)} Anti Points`},
+            effect(){return Decimal.mul(3, player.yourGod.buyables[21])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[21].add(1).mul(player.yourGod.buyables[21].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
+                player.yourGod.buyables[21] = player.yourGod.buyables[21].add(1)
             },
-            unlocked(){return player["tree-tab"].shown[2]}
+            unlocked(){return player["tree-tab"].shown[2] && player.her.timeline[1]==0}
         },
         22: {
             title(){return `Spacial Dimension Duplicator`},
-            display(){return `Your total size boosts your point gain<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: x${format(tmp.yourGod.buyables[this.id].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.pow(tmp.s.sizeEffect, player.yourGod.buyables[this.id])},
+            display(){return `Your total size boosts your point gain<br>Amount: ${formatWhole(player.yourGod.buyables[22])}<br>Effect: x${format(tmp.yourGod.buyables[22].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[22].cost)} Anti Points`},
+            effect(){return Decimal.pow(tmp.s.sizeEffect, player.yourGod.buyables[22])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[22].add(1).mul(player.yourGod.buyables[22].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
+                player.yourGod.buyables[22] = player.yourGod.buyables[22].add(1)
             },
-            unlocked(){return player["tree-tab"].shown[2]}
+            unlocked(){return player["tree-tab"].shown[2] && player.her.timeline[1]==0}
         },
         23: {
             title(){return `Spacial Point Elevation`},
-            display(){return `Increases your space point gain exponent by 11th<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: ^${format(tmp.yourGod.buyables[this.id].effect.add(1))}<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(1/11, player.yourGod.buyables[this.id])},
+            display(){return `Increases your space point gain exponent by 11th<br>Amount: ${formatWhole(player.yourGod.buyables[23])}<br>Effect: ^${format(tmp.yourGod.buyables[23].effect.add(1))}<br>Cost: ${formatWhole(tmp.yourGod.buyables[23].cost)} Anti Points`},
+            effect(){return Decimal.mul(1/11, player.yourGod.buyables[23])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[23].add(1).mul(player.yourGod.buyables[23].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
+                player.yourGod.buyables[23] = player.yourGod.buyables[23].add(1)
             },
-            unlocked(){return player["tree-tab"].shown[2]}
+            unlocked(){return player["tree-tab"].shown[2] && player.her.timeline[1]==0}
         },
         31: {
             title(){return `Temporal Time Advantage`},
-            display(){return `Your time point is incrased as if you just bought another Time<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: +${format(tmp.yourGod.buyables[this.id].effect)} free time<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(1, player.yourGod.buyables[this.id])},
+            display(){return `Your time point is incrased as if you just bought another Time<br>Amount: ${formatWhole(player.yourGod.buyables[31])}<br>Effect: +${format(tmp.yourGod.buyables[31].effect)} free time<br>Cost: ${formatWhole(tmp.yourGod.buyables[31].cost)} Anti Points`},
+            effect(){return Decimal.mul(1, player.yourGod.buyables[31])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[31].add(1).mul(player.yourGod.buyables[31].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
+                player.yourGod.buyables[31] = player.yourGod.buyables[31].add(1)
             },
-            unlocked(){return player["tree-tab"].shown[3]}
+            unlocked(){return player["tree-tab"].shown[3] && player.her.timeline[1]==0}
         },
         32: {
             title(){return `Temporal Bar Overflow`},
-            display(){return `Your bars can go beyond limitation, further increasing your Time buyables's potential<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: x${format(tmp.yourGod.buyables[this.id].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(1, player.yourGod.buyables[this.id]).add(1)},
+            display(){return `Your bars can go beyond limitation, further increasing your Time buyables's potential<br>Amount: ${formatWhole(player.yourGod.buyables[32])}<br>Effect: x${format(tmp.yourGod.buyables[32].effect)}<br>Cost: ${formatWhole(tmp.yourGod.buyables[32].cost)} Anti Points`},
+            effect(){return Decimal.mul(1, player.yourGod.buyables[32]).add(1)},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[32].add(1).mul(player.yourGod.buyables[32].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
+                player.yourGod.buyables[32] = player.yourGod.buyables[32].add(1)
             },
-            unlocked(){return player["tree-tab"].shown[3]}
+            unlocked(){return player["tree-tab"].shown[3] && player.her.timeline[1]==0}
         },
         33: {
             title(){return `Temporal Time Dilation`},
-            display(){return `Exponentiates your Time upgrades's "time" by 60th<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: ^${format(tmp.yourGod.buyables[this.id].effect.add(1))}<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
-            effect(){return Decimal.mul(1/60, player.yourGod.buyables[this.id])},
+            display(){return `Exponentiates your Time upgrades's "time" by 60th<br>Amount: ${formatWhole(player.yourGod.buyables[33])}<br>Effect: ^${format(tmp.yourGod.buyables[33].effect.add(1))}<br>Cost: ${formatWhole(tmp.yourGod.buyables[33].cost)} Anti Points`},
+            effect(){return Decimal.mul(1/60, player.yourGod.buyables[33])},
             canAfford(){return player.yourGod.shopPoints.gte(this.cost())},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[33].add(1).mul(player.yourGod.buyables[33].add(2)).div(2)},
             buy(){
                 player.yourGod.shopPoints = player.yourGod.shopPoints.sub(this.cost())
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
+                player.yourGod.buyables[33] = player.yourGod.buyables[33].add(1)
             },
-            unlocked(){return player["tree-tab"].shown[3]}
+            unlocked(){return player["tree-tab"].shown[3] && player.her.timeline[1]==0}
         },
         691: {
             title(){return `Buy Shop Point`},
-            display(){return `Does exactly what it says.<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} points`},
+            display(){return `Does exactly what it says.<br>Cost: ${formatWhole(tmp.yourGod.buyables[691].cost)} points`},
             canAfford(){return player.points.gte(this.cost())},
-            cost(){return Decimal.pow(10000000000, player.yourGod.buyables[this.id].add(1).pow(6.9))},
+            cost(){return Decimal.pow(10000000000, player.yourGod.buyables[691].add(100).pow(6.9))},
             buy(){
                 player.points = player.points.sub(this.cost())
                 player.yourGod.shopPoints = player.yourGod.shopPoints.add(1)
-                player.yourGod.buyables[this.id] = player.yourGod.buyables[this.id].add(1)
-            }
+                player.yourGod.buyables[691] = player.yourGod.buyables[691].add(1)
+            },
+			unlocked(){return player.her.timeline[1]==0},
         },
         692: {
             title(){return `Respec Shop Points`},
-            display(){return `Adds up your point gain by 30 billion<br>Amount: ${formatWhole(player.yourGod.buyables[this.id])}<br>Effect: +${format(tmp.yourGod.buyables[this.id].effect)} points<br>Cost: ${formatWhole(tmp.yourGod.buyables[this.id].cost)} Anti Points`},
+            display(){return `Adds up your point gain by 30 billion<br>Amount: ${formatWhole(player.yourGod.buyables[692])}<br>Effect: +${format(tmp.yourGod.buyables[692].effect)} points<br>Cost: ${formatWhole(tmp.yourGod.buyables[692].cost)} Anti Points`},
             canAfford(){return true},
-            cost(){return player.yourGod.buyables[this.id].add(1).mul(player.yourGod.buyables[this.id].add(2)).div(2)},
+            cost(){return player.yourGod.buyables[692].add(1).mul(player.yourGod.buyables[692].add(2)).div(2)},
             buy(){
 				if(confirm("Are you sure you want to do that? You'll get all your shop points back, but you'll lose all your resources\n\n(you'll keep all your layers unlocked)")){
 					player.points = new Decimal(0)
@@ -337,7 +358,8 @@ addLayer("yourGod", {
 						}
 					}
 				}
-            }
+            },
+			unlocked(){return player.her.timeline[1]==0},
         },
         quest1: {
             title(){return `<h1 style='font-size:32px;'>Strength Quest [LEVEL ${formatWhole(player.yourGod.quests[0][1][1])}]`},
@@ -355,9 +377,27 @@ addLayer("yourGod", {
         },
         quest1Reset: {
             title(){return `<h1 style='font-size:20px;'>[RESET STRENGTH QUEST]</h1>`},
-            display(){return `<h1 style='font-size:10px;'>Resets quest's timer and level in exchange for new quest.</h1>`},
+            display(){return `<h1 style='font-size:10px;'>Resets quest entirely (level, requirement, reward) inexchange for instant quest swap.</h1>`},
 			canAfford(){return true},
-			buy(){if(confirm("Are you sure you want to reset that quest? You could get some INSANE stat gains if you were to just push even further beyond."))player.yourGod.quests[0][1][0] = new Decimal(0)},
+			buy(){
+				let randomizeIt = Math.floor(Math.random()*(4))
+				let questRequirement = player.yourGod.bestPointsThusFar[randomizeIt].gt(0)?player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][0]:[1,8,27][0]).div(tmp.her.buyables["level6"].effect):new Decimal(0)
+				while(questRequirement.lte(0) || player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
+					randomizeIt = Math.floor(Math.random()*(4))
+					questRequirement = player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).div(tmp.her.buyables["level6"].effect)
+				}
+				let questResource = [`Points`,`Prestige Points`,`Spaces`,`Time Points`][randomizeIt]
+				let questReward = Decimal.pow(7/6, 1).sub(1)
+				if(confirm(`Are you sure you want to reset that quest? You could get some INSANE stat gains if you were to just push even further beyond.\n\n[New Quest Stats]\nRequirement: ${format(questRequirement)} ${questResource}\nReward: ${format(questReward)} Strength`)==true){
+					player.yourGod.quests[0][1][1] = new Decimal(1)
+					player.yourGod.quests[0][0][0] = questRequirement
+					player.yourGod.quests[0][0][1] = questResource
+					player.yourGod.quests[0][0][2] = [`player.points`,`player.p.points`,`player.s.points`,`player.t.timePoints`][randomizeIt]
+					player.yourGod.quests[0][0][3] = [0,1,2,3][randomizeIt]
+					player.yourGod.quests[0][0][4] = questReward
+					player.yourGod.quests[0][1][0] = new Decimal(420)
+				}
+			},
             style(){return {
                 "height": "150px",
                 "width": "150px",
@@ -383,9 +423,27 @@ addLayer("yourGod", {
         },
         quest2Reset: {
             title(){return `<h1 style='font-size:20px;'>[RESET AGILITY QUEST]</h1>`},
-            display(){return `<h1 style='font-size:10px;'>Resets quest's timer and level in exchange for new quest.</h1>`},
+            display(){return `<h1 style='font-size:10px;'>Resets quest entirely (level, requirement, reward) inexchange for instant quest swap.</h1>`},
 			canAfford(){return true},
-			buy(){if(confirm("Are you sure you want to reset that quest? You could get some INSANE stat gains if you were to just push even further beyond."))player.yourGod.quests[1][1][0] = new Decimal(0)},
+			buy(){
+				let randomizeIt = Math.floor(Math.random()*(4))
+				let questRequirement = player.yourGod.bestPointsThusFar[randomizeIt].gt(0)?player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][0]:[1,8,27][0]).div(tmp.her.buyables["level6"].effect):new Decimal(0)
+				while(questRequirement.lte(0) || player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
+					randomizeIt = Math.floor(Math.random()*(4))
+					questRequirement = player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?3:8).div(tmp.her.buyables["level6"].effect)
+				}
+				let questResource = [`Points`,`Prestige Points`,`Spaces`,`Time Points`][randomizeIt]
+				let questReward = Decimal.pow(7/6, 1).sub(1)
+				if(confirm(`Are you sure you want to reset that quest? You could get some INSANE stat gains if you were to just push even further beyond.\n\n[New Quest Stats]\nRequirement: ${format(questRequirement)} ${questResource}\nReward: ${format(questReward)} Agility`)==true){
+					player.yourGod.quests[1][1][1] = new Decimal(1)
+					player.yourGod.quests[1][0][0] = questRequirement
+					player.yourGod.quests[1][0][1] = questResource
+					player.yourGod.quests[1][0][2] = [`player.points`,`player.p.points`,`player.s.points`,`player.t.timePoints`][randomizeIt]
+					player.yourGod.quests[1][0][3] = [0,1,2,3][randomizeIt]
+					player.yourGod.quests[1][0][4] = questReward
+					player.yourGod.quests[1][1][0] = new Decimal(420)
+				}
+			},
             style(){return {
                 "height": "150px",
                 "width": "150px",
@@ -411,9 +469,27 @@ addLayer("yourGod", {
         },
         quest3Reset: {
             title(){return `<h1 style='font-size:20px;'>[RESET INTELLIGENCE QUEST]</h1>`},
-            display(){return `<h1 style='font-size:10px;'>Resets quest's timer and level in exchange for new quest.</h1>`},
+            display(){return `<h1 style='font-size:10px;'>Resets quest entirely (level, requirement, reward) inexchange for instant quest swap.</h1>`},
 			canAfford(){return true},
-			buy(){if(confirm("Are you sure you want to reset that quest? You could get some INSANE stat gains if you were to just push even further beyond."))player.yourGod.quests[2][1][0] = new Decimal(0)},
+			buy(){
+				let randomizeIt = Math.floor(Math.random()*(4))
+				let questRequirement = player.yourGod.bestPointsThusFar[randomizeIt].gt(0)?player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?[1,3,6][0]:[1,8,27][0]).div(tmp.her.buyables["level6"].effect):new Decimal(0)
+				while(questRequirement.lte(0) || player.yourGod.bestPointsThusFar[randomizeIt].lte(0)) {
+					randomizeIt = Math.floor(Math.random()*(4))
+					questRequirement = player.yourGod.bestPointsThusFar[randomizeIt].add(player.yourGod.bestPassivePointGainThusFar[randomizeIt].mul(randomizeIt==3?1:420).add(randomizeIt==3?70:0)).mul(randomizeIt==3?6:27).div(tmp.her.buyables["level6"].effect)
+				}
+				let questResource = [`Points`,`Prestige Points`,`Spaces`,`Time Points`][randomizeIt]
+				let questReward = Decimal.pow(7/6, 1).sub(1)
+				if(confirm(`Are you sure you want to reset that quest? You could get some INSANE stat gains if you were to just push even further beyond.\n\n[New Quest Stats]\nRequirement: ${format(questRequirement)} ${questResource}\nReward: ${format(questReward)} Intelligence`)==true){
+					player.yourGod.quests[2][1][1] = new Decimal(1)
+					player.yourGod.quests[2][0][0] = questRequirement
+					player.yourGod.quests[2][0][1] = questResource
+					player.yourGod.quests[2][0][2] = [`player.points`,`player.p.points`,`player.s.points`,`player.t.timePoints`][randomizeIt]
+					player.yourGod.quests[2][0][3] = [0,1,2,3][randomizeIt]
+					player.yourGod.quests[2][0][4] = questReward
+					player.yourGod.quests[2][1][0] = new Decimal(420)
+				}
+			},
             style(){return {
                 "height": "150px",
                 "width": "150px",
@@ -428,29 +504,33 @@ addLayer("yourGod", {
         0: {
             "SPACE & TIME": {
                 content: [["row", [["upgrade","space1"],["upgrade","time1"]]]],  
-                unlocked(){return true}
+                unlocked(){return true},
             }
         }
     },
     tabFormat: {
         "SHOP": {
-            content: [["display-text", function(){return `<h1 style='color: darkred; text-shadow: purple ${player.yourGod.textX}px ${player.yourGod.textY}px ${player.yourGod.textBlur}px'>DOES ANY OF THIS LOOK FAMILIAR?<br>SHOP POINTS: ${formatWhole(player.yourGod.shopPoints)}`}],"blank","buyables"],
-            unlocked(){return true}
+            content: [["display-text", function(){return `<h1 style='color: darkred; text-shadow: purple ${player.yourGod.textX}px ${player.yourGod.textY}px ${player.yourGod.textBlur}px'>DOES ANY OF THIS LOOK FAMILIAR?</h1><br>SHOP POINTS: ${formatWhole(player.yourGod.shopPoints)}`}],"blank","buyables"],
+            unlocked(){return player.her.timeline[1]==0}
         },
         "PERKS": {
-            content: [["display-text", function(){return `<h1 style='color: darkred; text-shadow: purple ${player.yourGod.textX}px ${player.yourGod.textY}px ${player.yourGod.textBlur}px'>DOES ANY OF THIS LOOK FAMILIAR?<br>PERK POINTS: ${formatWhole(player.yourGod.perkPoints)}`}],["microtabs", 0, {'border-color': 'rgba(0,0,0,0)'}]],  
-            unlocked(){return true}
+            content: [["display-text", function(){return `<h1 style='color: darkred; text-shadow: purple ${player.yourGod.textX}px ${player.yourGod.textY}px ${player.yourGod.textBlur}px'>DOES ANY OF THIS LOOK FAMILIAR?</h1><br>PERK POINTS: ${formatWhole(player.yourGod.perkPoints)}`}],["microtabs", 0, {'border-color': 'rgba(0,0,0,0)'}]],  
+            unlocked(){return true},
         },
         "QUESTS": {
-            content: [["display-text", function(){return `<h1 style='color: darkred; text-shadow: purple ${player.yourGod.textX}px ${player.yourGod.textY}px ${player.yourGod.textBlur}px'>DOES ANY OF THIS LOOK FAMILIAR?`}],"blank",["display-text", function(){return player.yourGod.selectedQuest!==4?`<h2>PROGRESS: ${format(eval(player.yourGod.quests[player.yourGod.selectedQuest-1][0][2]))} / ${format(player.yourGod.quests[player.yourGod.selectedQuest-1][0][0])} ${player.yourGod.quests[player.yourGod.selectedQuest-1][0][1]}`:``}],"blank",["row",[["buyable","quest1"],["buyable","quest1Reset"]]],"blank",["row",[["buyable","quest2"],["buyable","quest2Reset"]]],"blank",["row",[["buyable","quest3"],["buyable","quest3Reset"]]]],
-            unlocked(){return true}
+            content: [["display-text", function(){return `<h1 style='color: darkred; text-shadow: purple ${player.yourGod.textX}px ${player.yourGod.textY}px ${player.yourGod.textBlur}px'>DOES ANY OF THIS LOOK FAMILIAR?</h1><br>QUESTS DONE: ${formatWhole(player.yourGod.questsDone)}`}],"blank",["display-text", function(){return player.yourGod.selectedQuest!==4?`<h2>PROGRESS: ${format(eval(player.yourGod.quests[player.yourGod.selectedQuest-1][0][2]))} / ${format(player.yourGod.quests[player.yourGod.selectedQuest-1][0][0])} ${player.yourGod.quests[player.yourGod.selectedQuest-1][0][1]}`:``}],"blank",["row",[["buyable","quest1"],["buyable","quest1Reset"]]],"blank",["row",[["buyable","quest2"],["buyable","quest2Reset"]]],"blank",["row",[["buyable","quest3"],["buyable","quest3Reset"]]]],
+            unlocked(){return player.her.timeline[1]==0}
         },
         "???": {
             content: [["tree", function() {return [["penis"]]}]],
             unlocked(){return true},
 			buttonStyle(){return{
-				"opacity": "0%"
+				"color": player.her.timeline[1]==0?"rgba(0,0,0,0)":"",
+				"border-color": player.her.timeline[1]==0?"rgba(0,0,0,0)":tmp.yourGod.color,
+				"transform": player.her.timeline[1]==0?"scale(1,1)":"",
+				"box-shadow": !player.her.sheWasSeen || (player.her.herLog[1]>=1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))?"0px 0px 20px rgb(0,255,255)":"0px 0px 0px rgba(0,0,0,0)"
 			}},
+			title(){return player.her.timeline[1]!==0?"W.I.P.":"???"}
         },
     },
     layerShown(){return player.yourGod.isAlreadyHere}
@@ -470,14 +550,22 @@ addLayer("her", {
 		experience: new Decimal(0),
 		japanese: true,
 		whatCouldPossiblyGoWrong: false,
-		herPoints: new Decimal(0)
+		herPoints: new Decimal(0),
+		timeline: [0, 0],
+		timelineSave: "",
+		timelinePoints: [new Decimal(10),new Decimal(10),new Decimal(10)],
+		fuckOFFIMALLOWEDTOCHEATNOW: 1,
+		gameState: 0,
     }},
-	update(ourSoul){
+	timelineNames(){return player.her.japanese?([["MAIN ZONE",`[undefined]<br>REWARD: NaN`],["ROOT ZONE",`[Decimal.root(normal_resource, 2),Decimal.root(getPointGain(), 2)]<br>reward: x${format(tmp.her.timelineEffects[1])} point gain`],["The RPG-less Timeline",`[level=undefined, stats=undefined]<br>Reward: x${format(tmp.her.timelineEffects[2])} EXP gain`]][player.her.timeline[0]]):([["The Main Timeline",`[No negative, nor positive changes, just your average vanilla experience]<br>Reward: None`],["The Root Timeline",`[All Normal Resources and Point Gain are square rooted]<br>Reward: x${format(tmp.her.timelineEffects[1])} point gain`],["The RPG-less Timeline",`[Levels and Stats do not exist within this timeline]<br>Reward: x${format(tmp.her.timelineEffects[2])} experience gain`]][player.her.timeline[0]])},
+	timelineEffects(){return [player.her.timelinePoints[0].max(10).log(10), player.her.timelinePoints[1].max(10).log(10), player.her.timelinePoints[2].max(10).log(10)]},
+	update(ourSoul){ 
 		if(player.tab=="her") player.her.sheWasSeen = true
+		player.her.timelinePoints[player.her.timeline[1]] = player.her.timelinePoints[player.her.timeline[1]].max(player.points)
 		player.her.experience = player.her.experience.add(tmp.her.experienceGain.mul(ourSoul)).min(tmp.her.buyables["level2"].cost)
 	},
 	experienceGain(){
-		let gain = tmp.her.buyables["level1"].effect
+		let gain = tmp.her.buyables["level1"].effect.mul(tmp.her.timelineEffects[2])
 		return gain
 	},
     tabFormat: {
@@ -485,12 +573,19 @@ addLayer("her", {
 			content: [["infobox", "herBlog"],["row", [["buyable","prev"], ["buyable","current"], ["buyable","next"]]], ["buyable","progress"]],
 			unlocked(){return player.her.buyables["progress"].gte(1)},
 			buttonStyle(){return{
-				"box-shadow":((player.her.herLog[1]==1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))?"0px 0px 20px rgb(0,255,255)":"0px 0px 0px rgba(0,0,0,0)")
-			}}
+				"box-shadow":((player.her.herLog[1]>=1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))?"0px 0px 20px rgb(0,255,255)":"0px 0px 0px rgba(0,0,0,0)")
+			}},
+			title(){return player.her.japanese?"ラッキーエア":"Rakkīea"},
 		},
 		"level": {
-			content: [["display-text", function(){return `<h2>Current Level: ${formatWhole(player.her.levels)}</h2><br>You have <h1 style='font-size: 30px;text-shadow: 0px 0px 8px ${tmp.her.color};color: ${tmp.her.color}'>${format(player.her.experience)}</h1> experiences<h5 style='opacity:0.5;'>(and you gain ${format(tmp.her.buyables["level1"].effect)} exp/sec)`}],"blank",["row",[["buyable","level1"],["buyable","level2"]]],["row",[["buyable","level3"],["buyable","level4"],["buyable","level5"],["buyable","level6"]]]],
-			unlocked(){return player.her.buyables["progress"].gte(1)}
+			content: [["display-text", function(){return player.her.japanese?`<h2>current LEVEL: ${formatWhole(player.her.levels)}</h2><br>You have <h1 style='font-size: 30px;text-shadow: 0px 0px 8px ${tmp.her.color};color: ${tmp.her.color}'>${format(player.her.experience)}</h1><h1 style='font-size: 30px;'>|${format(tmp.her.buyables["level2"].cost)}</h1> EXP<h5 style='opacity:0.5;'>(${format(tmp.her.experienceGain)} EXP/sec)</h5>${player.her.timeline[1]==2?``:`<br>base STR: ${format(player.a.statsRPG[1])}<br>base AGI: ${format(player.a.statsRPG[2])}<br>base INT: ${format(player.a.statsRPG[3])}`}`:`<h2>Current Level: ${formatWhole(player.her.levels)}</h2><br>You have <h1 style='font-size: 30px;text-shadow: 0px 0px 8px ${tmp.her.color};color: ${tmp.her.color}'>${format(player.her.experience)}</h1>|<h1 style='font-size: 30px;'>${format(tmp.her.buyables["level2"].cost)}</h1> experiences<h5 style='opacity:0.5;'>(and you gain ${format(tmp.her.experienceGain)} exp/sec)${player.her.timeline[1]==2?``:`<br>Base Strength: ${format(player.a.statsRPG[1])}<br>Base Agility: ${format(player.a.statsRPG[2])}<br>Base Intelligence: ${format(player.a.statsRPG[3])}`}`}],"blank",["row",[["buyable","level1"],["buyable","level2"]]],["row",[["buyable","level3"],["buyable","level4"],["buyable","level5"],["buyable","level6"]]],"blank",["display-text", function(){return "<span>mini tree (¬ ¬)<p style='font-size:10px;transform:translateX(42px) translateY(-10px);'>▽</p></h1>"}],"blank",["tree", function() {return [["pNodeMini"],["sNodeMini","blankMini","tNodeMini"]]}, {"border":"4px solid"}]],
+			unlocked(){return player.her.buyables["progress"].gte(1)},
+			title(){return player.her.japanese?"レベル":"Level"}
+		},
+		"time travel": {
+			content: [["display-text", function(){return player.her.japanese?`<h1>TIMELINE ZONE</h1><br>TIMELINE ZONE grants access to other zones, each having differential attributions... and deadly obstacles. FUN IS INFINITE, after all! progression in other zones boosts all zones, very important.<br><br>there are no quest or shop in other time zones and... your progress in zone won't stay after leaving them, recommendation: stay as long as possible.<br><br>can't fix the problem... scores are still preserved though. ¯\_(ツ)_/¯<br><br>-ラッキーエア`:`<h1>TIMELINE HUB</h1><br>In this hub, you are able to traverse across different timelines of the same universe, each offering different challenges, trade offs or absolute dumpsters that... will make you reconsider life choices. The possibilities are endless, after all! Progressing through different timelines will affect all timelines in one way or another, so don't hesitate to try them all out.<br><br>You only get to keep the layer itself, perk subtab and this sublayer in other timelines and... unfortunately for you, there are some technical issues that apparently causes the entire universe to implode at exponential rate, forcing you to start all over again in alternate timelines.<br><br>Can't really do much about it... at least you get to keep your score. ¯\_(ツ)_/¯<br><br>-Rakkīea`}],"blank","blank",["display-text", function(){return `<h2>${tmp.her.timelineNames[0]}</h2><br>(${format(player.her.timelinePoints[player.her.timeline[0]])} ${player.her.japanese?"s":"S"}core)<br>${tmp.her.timelineNames[1]}</h2>`}],"blank",["buyable","enterTimeline"],"blank",["tree", function() {return [["mainTimeline"],["rootTimeline","blankMini","blankMini","antiRPGTimeline"]]}]],
+			unlocked(){return player.her.buyables["progress"].gte(2)},
+			title(){return player.her.japanese?"タイムラインハブ":"Timeline Hub"}
 		}
 	},
     color: "rgb(0,99,99)",
@@ -519,7 +614,7 @@ addLayer("her", {
             }},
         },
         current: {
-            display(){return `<p style='font-size:32px;'>[${formatWhole(player.her.herLog[0]+1)}|${formatWhole(player.her.herLog[1]+1)}]`},
+            display(){return `<p style='font-size:20px;'>[${formatWhole(player.her.herLog[0]+1)}|${formatWhole(player.her.herLog[1]+1)}]`},
             style(){return {
                 "height": "100px",
                 "width": "100px"
@@ -536,43 +631,59 @@ addLayer("her", {
                 "width": "100px"
             }},
         },
+		enterTimeline: {
+            display(){return `<p style='font-size:30px;'>${player.her.japanese?`「巨ハノイ巨尺」`:`[ENTER]`}`},
+            buy(){
+                if(confirm("Are you sure you're not misclicking anything?")){
+					if(confirm("Are you REAAAAAAAAAAAAAAALLY sure about that?")){
+						alert("Initializing Timeline Travel...")
+						timelineShenanigans(player.her.timeline[1],player.her.timeline[0])
+					}
+				}
+            },
+            canAfford(){return true},
+            style(){return {
+                "height": "100px",
+                "width": "300px",
+				"color": player.her.timeline[0]==1?"rgb(247.788897449,247.788897449,242.671171994)":"",
+				"background-color": tmp[["mainTimeline","rootTimeline","antiRPGTimeline"][player.her.timeline[0]]].color
+            }},
+		},
         progress: {
             display(){return `<p style='font-size:30px;'>${player.her.japanese?`「ア尺のこ巨巨厶」`:`[PROCEED]`}`},
             buy(){
 				if(player.her.buyables["progress"].eq(0)) doPopup("default", `${player.her.japanese?`レベル機能がロック解除されました!`:`Level feature unlocked!`}`, `${player.her.japanese?`「✓」`:`[√]`}`, new Decimal(3), tmp.her.color);
-				if(player.her.buyables["progress"].eq(1)){
-					let a = player["tree-tab"].display
-                    tmp.gameEnded = true
-                    player["tree-tab"].youShouldStopYourselfNOW = true
-                    clearParticles()
-                    player["tree-tab"].display = a
-					doPopup("default", `${player.her.japanese?`プレステージ機能がロック解除されました!`:`Prestige feature unlocked!`}`, `${player.her.japanese?`「✓」`:`[√]`}`, new Decimal(3), tmp.her.color)
-				}
+                if(player.her.buyables["progress"].eq(1)) doPopup("default", `${player.her.japanese?`タイムラインハブがロック解除されました!`:`Timeline Hub unlocked!`}`, `${player.her.japanese?`「✓」`:`[√]`}`, new Decimal(3), tmp.her.color);
                 player.her.buyables["progress"] = player.her.buyables["progress"].add(1)
             },
-			canAfford(){return (player.her.herLog[1]==1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))},
+			canAfford(){return (player.her.herLog[1]>=1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))},
             style(){return {
                 "width": "300px",
                 "height": "100px",
             }},
-			unlocked(){return (player.her.herLog[1]==1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))},
+			unlocked(){return (player.her.herLog[1]>=1 && player.her.buyables["progress"].eq(0)) || (player.her.whatCouldPossiblyGoWrong && player.her.buyables["progress"].eq(1) && player.her.herPoints.lte(0))},
         },
         level1: {
-            display(){return `<h1>Experience Generator</h1><br>Generates 1 Exp/sec per buyable<br><br>Effect: ${format(this.effect())}/sec<br>Cost: ${format(this.cost())} experiences`},
-            effect(){return player.her.buyables[this.id].mul(tmp.her.buyables["level3"].effect)},
-			cost(){return player.her.buyables[this.id].gte(1)?Decimal.pow(777, player.her.buyables[this.id]):new Decimal(0)},
+            display(){return  player.her.japanese?`<h1>EXP generate</h1><br>get 1 EXP/sec per buyable<br><br>effect: ${format(this.effect())}/sec<br>cost: ${format(this.cost())} EXP`:`<h1>Experience Generator</h1><br>Generates 1 Exp/sec per buyable<br><br>Effect: ${format(this.effect())}/sec<br>Cost: ${format(this.cost())} experiences`},
+            effect(){return player.her.buyables["level1"].mul(tmp.her.buyables["level3"].effect)},
+			cost(){return player.her.buyables["level1"].gte(1)?Decimal.pow(777, player.her.buyables["level1"]):new Decimal(0)},
 			buy(){
 				player.her.experience = player.her.experience.sub(this.cost())
-                player.her.buyables[this.id] = player.her.buyables[this.id].add(1)
+                player.her.buyables["level1"] = player.her.buyables["level1"].add(1)
             },
             canAfford(){return player.her.experience.gte(this.cost())},
         },
         level2: {
-            display(){return `<h1>Level Up</h1><br>Resets your experience in exchange for a single level, increasing your total stats by +1/7 and unlocking new buyables<br><br>Effect: x${format(this.effect())}<br>Requirement: ${format(this.cost())} experiences`},
+            display(){return player.her.japanese?`<h1>LEVEL!</h1><br>compromise EXP for LEVEL, better stats (+1/7) and +buyable<br><br>effect: x${format(this.effect())}<br>requirement: ${format(this.cost())} EXP`:`<h1>Level Up</h1><br>Resets your experience in exchange for a single level, increasing your total stats by +1/7 and unlocking new buyables<br><br>Effect: x${format(this.effect())}<br>Requirement: ${format(this.cost())} experiences`},
             effect(){return player.her.levels.sub(1).div(7).add(1)},
 			cost(){return Decimal.pow(player.her.levels.pow(5/3).add(1), 4/3).mul(15)},
 			buy(){
-				if(player.her.levels.gte(5)){
+				if(player.her.levels.eq(4)){
+					for(i=0;i<3;i++){
+						player.yourGod.quests[i][0][0] = player.yourGod.quests[i][0][0].div(Decimal.pow(1.15, player.her.buyables["level2"]).mul(tmp.her.buyables["level5"].effect))
+					}
+				}
+				if(player.her.levels.eq(5)){
 					player.her.whatCouldPossiblyGoWrong = true
 					if(player.her.herLog[1]<2) player.her.herLog[1]=player.her.herLog[1]+1
 				}
@@ -582,45 +693,50 @@ addLayer("her", {
             canAfford(){return player.her.experience.gte(this.cost())},
         },
         level3: {
-            display(){return `<h1>More Powerful Generators</h1><br>Makes "Expeirence Generator" stronger<br><br>Effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
-            effect(){return player.her.buyables[this.id].div(5).add(1).mul(tmp.her.buyables["level5"].effect)},
-			cost(){return Decimal.pow(6, player.her.buyables[this.id]).mul(15)},
+            display(){return player.her.japanese?`<h1>EXP generate++</h1><br>EXP generate = EXP generate+0.2<br><br>effect: x${format(this.effect())}<br>cost: ${format(this.cost())} EXP`:`<h1>More Powerful Generators</h1><br>Makes "Expeirence Generator" stronger<br><br>Effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
+            effect(){return player.her.buyables["level3"].div(5).add(1).mul(tmp.her.buyables["level5"].effect)},
+			cost(){return Decimal.pow(6, player.her.buyables["level3"]).mul(15)},
 			buy(){
 				player.her.experience = player.her.experience.sub(this.cost())
-                player.her.buyables[this.id] = player.her.buyables[this.id].add(1)
+                player.her.buyables["level3"] = player.her.buyables["level3"].add(1)
             },
             canAfford(){return player.her.experience.gte(this.cost())},
 			unlocked(){return player.her.levels.gte(2)}
         },
         level4: {
-            display(){return `<h1>Point Gain Anti-Cap Booster</h1><br>Boosts Point Gain after softcap<br><br>Effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
-            effect(){return player.her.buyables[this.id].div(5/1.69).add(1).mul(tmp.her.buyables["level5"].effect)},
-			cost(){return Decimal.pow(12*1.69, player.her.buyables[this.id]).mul(30*1.69)},
+            display(){return player.her.japanese?`<h1>softcap bypass point boost</h1><br>boosts point with no softcap<br><br>effect: x${format(this.effect())}<br>cost: ${format(this.cost())} EXP`:`<h1>Point Gain Anti-Cap Booster</h1><br>Boosts Point Gain after softcap<br><br>Effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
+            effect(){return player.her.buyables["level4"].div(5/1.69).add(1).mul(tmp.her.buyables["level5"].effect)},
+			cost(){return Decimal.pow(12*1.69, player.her.buyables["level4"]).mul(30*1.69)},
 			buy(){
 				player.her.experience = player.her.experience.sub(this.cost())
-                player.her.buyables[this.id] = player.her.buyables[this.id].add(1)
+                player.her.buyables["level4"] = player.her.buyables["level4"].add(1)
             },
             canAfford(){return player.her.experience.gte(this.cost())},
 			unlocked(){return player.her.levels.gte(3)}
         },
         level5: {
-            display(){return `<h1>Super Level</h1><br>"Level Up" affects other post-Level 1 buyables<br><br>Effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
-            effect(){return Decimal.pow(tmp.her.buyables["level2"].effect, player.her.buyables[this.id])},
-			cost(){return Decimal.pow(player.her.buyables[this.id].pow(10/3).add(1), 8/3).mul(30)},
+            display(){return player.her.japanese?`<h1>SUPER LEVEL!</h1><br>better row 2 buyables with LEVEL!<br><br>effect: x${format(this.effect())}<br>cost: ${format(this.cost())} EXP`:`<h1>Super Level</h1><br>"Level Up" affects other Row 2 buyables<br><br>Effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
+            effect(){return Decimal.pow(tmp.her.buyables["level2"].effect, player.her.buyables["level5"])},
+			cost(){return Decimal.pow(player.her.buyables["level5"].pow(10/3).add(1), 8/3).mul(30)},
 			buy(){
 				player.her.experience = player.her.experience.sub(this.cost())
-                player.her.buyables[this.id] = player.her.buyables[this.id].add(1)
+                player.her.buyables["level5"] = player.her.buyables["level5"].add(1)
+				if(player.her.levels.gte(5)){
+					for(i=0;i<3;i++){
+						player.yourGod.quests[i][0][0] = player.yourGod.quests[i][0][0].div(tmp.her.buyables["level2"].effect)
+					}
+				}
             },
             canAfford(){return player.her.experience.gte(this.cost())},
 			unlocked(){return player.her.levels.gte(4)}
         },
         level6: {
-            display(){return `<h1>Quest Requirement Decreases</h1><br>Decreases quest requirements<br><br>Effect: /${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
-            effect(){return Decimal.pow(1.15, player.her.buyables[this.id])},
-			cost(){return Decimal.pow(420, player.her.buyables[this.id].add(1))},
+            display(){return player.her.japanese?`<h1>cheap quest</h1><br>makes quests easier<br><br>effect: /${format(this.effect())}<br>cost: ${format(this.cost())} EXP`:`<h1>Quest Requirement Decreases</h1><br>Decreases quest requirements<br><br>Effect: /${format(this.effect())}<br>Cost: ${format(this.cost())} experiences`},
+            effect(){return this.unlocked?Decimal.pow(1.15, player.her.buyables["level6"]).mul(tmp.her.buyables["level5"].effect):new Decimal(1)},
+			cost(){return Decimal.pow(420, player.her.buyables["level6"].add(1))},
 			buy(){
 				player.her.experience = player.her.experience.sub(this.cost())
-                player.her.buyables[this.id] = player.her.buyables[this.id].add(1)
+                player.her.buyables["level6"] = player.her.buyables["level6"].add(1)
 				for(i=0;i<3;i++){
 					player.yourGod.quests[i][0][0] = player.yourGod.quests[i][0][0].div(1.15)
 				}
@@ -641,11 +757,13 @@ addLayer("p", {
 		points: new Decimal(0),
     }},
     nodeStyle(){return{
+		"border": options.hqStyle[0].substr(1),
+        "text-shadow": options.hqStyle[2].substr(1),
         "z-index":"1", 
-        "box-shadow": "0px 0px "+(canReset("p")?20:0)+"px white,0px 0px "+(!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)))+"px "+tmp.p.color+",0px 0px "+(!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)))+"px "+tmp.p.color, 
+        "box-shadow": "0px 0px "+(canReset("p")?20:0)+"px white,0px 0px "+(!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)))+"px "+tmp.p.color+",0px 0px "+(!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)))+"px "+tmp.p.color+options.hqStyle[1] 
     }},
     passiveGeneration(){
-        return new Decimal(player.a.unlockedTabs[1]&&player.p.points.lte(969696969)?0.01:0).mul(player.a.finalStatsRPG[2])
+        return player.a.unlockedTabs[1]?new Decimal(player.p.unlocked?player.a.finalStatsRPG[2].div(100):0):false
     },
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -666,7 +784,11 @@ addLayer("p", {
         if(hasUpgrade("t",11)) mult = mult.mul(tmp.t.upgrades[11].effect)
         if(hasUpgrade("t",12)) mult = mult.mul(tmp.t.upgrades[12].effect)
         if(hasUpgrade("t",22)) mult = mult.mul(tmp.t.upgrades[22].effect)
-        return mult.mul(player.a.finalStatsRPG[0])
+		for(i=0;i<3;i++){
+			if(player.s.hypotheticalIdEffects[i]==1) mult = mult.mul(tmp.s.hypotheticalEffects[i])
+		}
+		if(player.s.hypotheticalIdEffects[3]==1) mult = mult.div(tmp.s.hypotheticalEffects[3])
+        return mult.mul(player.a.unlockedTabs[1]?player.a.finalStatsRPG[0]:1)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -700,20 +822,24 @@ addLayer("p", {
 			description: "Reveals Space layer and multiplies point gain based on prestige points",
             effect(){return player.p.points.add(1).root(4).max(1)},
             effectDisplay(){return "x"+format(this.effect())},
-			cost(){return player.yourGod.lowerSpaceTimeUpgradeCost&&player.s.unlocked?new Decimal(31):player.yourGod.lowerSpaceTimeUpgradeCost?new Decimal(1000000000):new Decimal(hasUpgrade("p",23)||player["tree-tab"].shown[3]?"1e100":31)},
-            canAfford(){return hasUpgrade("p",23)||player["tree-tab"].shown[3]&&!player.yourGod.lowerSpaceTimeUpgradeCost?false:true},
+			cost(){return player.yourGod.lowerSpaceTimeUpgradeCost&&player.s.unlocked?new Decimal(31):player.yourGod.lowerSpaceTimeUpgradeCost?new Decimal(1000000000):new Decimal(hasUpgrade("p",23)||player["tree-tab"].shown[3]?(hasUpgrade("p",21)?31:"1e100"):31)},
+            canAfford(){return (hasUpgrade("p",23)||player["tree-tab"].shown[3])&&!player.yourGod.lowerSpaceTimeUpgradeCost?false:true},
             onPurchase(){
                 if(!hasUpgrade("p", 23)){
-                    if(player["tree-tab"].dialoguePath==0) player["tree-tab"].specialEventsCounter = 0
-                    if(!(player["tree-tab"].shown[2]||player["tree-tab"].shown[3])) player["tree-tab"].dialoguePath = 1
-                    if(!(player["tree-tab"].shown[2]||player["tree-tab"].shown[3])) player["tree-tab"].dialogueNumber= 0
-                    player["tree-tab"].shown[2] = true
-                    if(player["tree-tab"].dialoguePath == 2){
-						player["tree-tab"].dialoguePath = 3
-						player["tree-tab"].specialEventsCounter = 0
+                    if(player["tree-tab"].dialoguePath==0)player["tree-tab"].specialEventsCounter = 0
+                    if(!(player["tree-tab"].shown[2]||player["tree-tab"].shown[3])){
+						player["tree-tab"].dialoguePath = 1
 						player["tree-tab"].dialogueNumber= 0
+						player["tree-tab"].unlockOrder[1] = 0
 					}
+                    player["tree-tab"].shown[2] = true
                 }
+                if(player["tree-tab"].dialoguePath == 2){
+					player["tree-tab"].dialoguePath = 3
+					player["tree-tab"].unlockOrder[2] = 0
+					player["tree-tab"].specialEventsCounter = 0
+					player["tree-tab"].dialogueNumber= 0
+				}
             },
             unlocked(){return player.p.upgradesUnlocked.includes(21)}
 		},
@@ -730,20 +856,24 @@ addLayer("p", {
 		23: { 
 			title: "Linear Timeline", 
 			description: "Reveals Time layer and multiplies prestige point gain by x4",
-			cost(){return player.yourGod.lowerSpaceTimeUpgradeCost&&player.t.unlocked?new Decimal(31):player.yourGod.lowerSpaceTimeUpgradeCost?new Decimal(1000000000):new Decimal(hasUpgrade("p",21)||player["tree-tab"].shown[2]?"1e100":31)},
-            canAfford(){return hasUpgrade("p",21)||player["tree-tab"].shown[2]&&!player.yourGod.lowerSpaceTimeUpgradeCost?false:true},
+			cost(){return player.yourGod.lowerSpaceTimeUpgradeCost&&player.t.unlocked?new Decimal(31):player.yourGod.lowerSpaceTimeUpgradeCost?new Decimal(1000000000):new Decimal(hasUpgrade("p",21)||player["tree-tab"].shown[2]?(hasUpgrade("p",23)?31:"1e100"):31)},
+            canAfford(){return (hasUpgrade("p",21)||player["tree-tab"].shown[2])&&!player.yourGod.lowerSpaceTimeUpgradeCost?false:true},
             onPurchase(){
                 if(!hasUpgrade("p", 21)){
                     if(player["tree-tab"].dialoguePath==0) player["tree-tab"].specialEventsCounter = 0
-                    if(!(player["tree-tab"].shown[2]||player["tree-tab"].shown[3])) player["tree-tab"].dialoguePath = 2
-                    if(!(player["tree-tab"].shown[2]||player["tree-tab"].shown[3])) player["tree-tab"].dialogueNumber= 0
-                    player["tree-tab"].shown[3] = true
-                    if(player["tree-tab"].dialoguePath == 1){
-						player["tree-tab"].dialoguePath = 3
-						player["tree-tab"].specialEventsCounter = 0
+                    if(!(player["tree-tab"].shown[2]||player["tree-tab"].shown[3])){
+						player["tree-tab"].dialoguePath = 2
 						player["tree-tab"].dialogueNumber= 0
+						player["tree-tab"].unlockOrder[1] = 1
 					}
+                    player["tree-tab"].shown[3] = true
                 }
+                if(player["tree-tab"].dialoguePath == 1){
+					player["tree-tab"].dialoguePath = 3
+					player["tree-tab"].unlockOrder[2] = 0
+					player["tree-tab"].specialEventsCounter = 0
+					player["tree-tab"].dialogueNumber= 0
+				}
             },
             unlocked(){return player.p.upgradesUnlocked.includes(23)}
 		},
@@ -772,7 +902,13 @@ addLayer("a", {
         statsRPG: [0,new Decimal(1),new Decimal(1),new Decimal(1),"Sir Dumb Stupid I"],
         finalStatsRPG: [new Decimal(1),new Decimal(1),new Decimal(1)],
 		vibeCheck: new Decimal(1),
+		vibeCheck2: new Decimal(1),
     }},
+    nodeStyle(){return{
+		"border": options.hqStyle[0].substr(1),
+		"box-shadow": options.hqStyle[1].substr(1),
+        "text-shadow": options.hqStyle[2].substr(1),
+	}},
     tooltip: "Achievements",
     update(diff){
 		player.a.finalStatsRPG[0] = player.a.statsRPG[1].mul(player.her.levels.sub(1).div(7).add(1))
@@ -783,7 +919,38 @@ addLayer("a", {
 			player.a.vibeCheck=player.a.vibeCheck.sub(diff)
 		}
 		else player.a.vibeCheck = new Decimal(1)
+		if(tmp.t.timeGain.lt(0.1)){
+			player.a.vibeCheck2=player.a.vibeCheck2.sub(diff)
+		}
+		else player.a.vibeCheck2 = new Decimal(1)
 	},
+	infoboxes: {
+        lore: {
+            title(){return `<p style ='transform: scale(1.333333333, 1);color: rgba(0,0,0,0);font-family: Impact, Impacto;font-size:20px;-webkit-text-stroke:1px cyan;'>${Object.keys(findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]]?findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]]:{"gojo":["nah","i","would","win"]})[0].toUpperCase()}`}, 
+            body() { return `<p style ='transform: scale(1.333333333, 1);color: rgba(0,0,0,0);font-family: Impact, Impacto;font-size:20px;-webkit-text-stroke:1px cyan;text-align:left;margin-left:82px;'>`+(findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]]?findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]][Object.keys(findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]])[0]][player["tree-tab"].prevDialogueNumber[1]]:"nah")},
+			titleStyle(){
+                return {
+                    "width": "128px",
+					"background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+					"background-position": "0px "+player.timePlayed*10+"px",
+                    "border": "lime 4px solid",
+                    "box-shadow": "0px 0px 4px lime",
+                }
+            },
+            bodyStyle(){
+                return {
+                    "height":"256px",
+                    "color": "lime",
+					"background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+					"background-position": "0px "+player.timePlayed*10+"px",
+                    "border": "lime 4px solid",
+					"border-radius": "0%",
+                    "box-shadow": "0px 0px 4px lime",
+                    "margin-bottom": "-4px",
+                }
+            }
+        },
+    },
     color: "yellow",
     row: "side", // Row the layer is in on the tree (0 is the first row)
     tabFormat: {
@@ -794,8 +961,139 @@ addLayer("a", {
         "Stats": {
             content: [["display-text", function(){return `<h1 style='text-align: left;'>YOU HAVE A POWER LEVEL OF ${format(player.a.statsRPG[0])}</h1><h5>(Multiplies your point gain based on your point gain, RPG stats and total achievements)</h5><h1 style='text-align: left;'><br>YOU ARE: ${player.a.statsRPG[4]}</h1><br><br><h3 style='text-align:left;'>Strength: ${format(player.a.finalStatsRPG[0])} (Global Resource Multiplier)<br>Agility: ${format(player.a.finalStatsRPG[1])} (Global Softcap Resistence)<br>Intelligence: ${format(player.a.finalStatsRPG[2])} (Global Passive Normal Resource Gain)`}]],
             unlocked(){return player.a.unlockedTabs[1]}
+        },
+        "Previous Dialogues": {
+            content: [["infobox","lore"],["row",[["buyable","prev"],["buyable","current"],["buyable","next"]]],["row",[["buyable","first"],["buyable","second"],["buyable","third"]]]],
+            unlocked(){return player.a.unlockedTabs[0]}
         }
     },
+    buyables: {
+        prev: {
+            display(){return `<h1 style='font-size:32px;'><==`},
+            buy(){
+                player["tree-tab"].prevDialogueNumber[1] = player["tree-tab"].prevDialogueNumber[1] - 1
+            },
+            canAfford(){return player["tree-tab"].prevDialogueNumber[1] !== 0},
+            style(){return {
+                "height": "50px",
+                "width": "190px",
+				"margin-top": "-8px",
+                "background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+				"background-position": "0px "+player.timePlayed*10+"px",
+				"color": "lime",
+				"transform":"scale(1,1)",
+				"border": "4px solid lime",
+				"border-radius": "0%",
+                "box-shadow": "0px 0px 4px lime",
+            }},
+        },
+        current: {
+            display(){return `<p style='font-size:20px;'>[${formatWhole(player["tree-tab"].prevDialogueNumber[1]+1)}|${formatWhole(player["tree-tab"].prevDialogueNumber[2])}]`},
+            style(){return {
+                "height": "50px",
+                "width": "190px",
+				"margin-top": "-8px",
+                "background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+				"background-position": "0px "+player.timePlayed*10+"px",
+				"color": "lime",
+				"transform":"scale(1,1)",
+				"border": "4px solid lime",
+				"border-radius": "0%",
+                "box-shadow": "0px 0px 4px lime",
+            }},
+        },
+        next: {
+            display(){return `<h1 style='font-size:32px;'>==>`},
+            buy(){
+                player["tree-tab"].prevDialogueNumber[1] = player["tree-tab"].prevDialogueNumber[1] + 1
+            },
+            canAfford(){return player["tree-tab"].prevDialogueNumber[1] < player["tree-tab"].prevDialogueNumber[2]-1},
+            style(){return {
+                "height": "50px",
+                "width": "190px",
+				"margin-top": "-8px",
+                "background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+				"background-position": "0px "+player.timePlayed*10+"px",
+				"color": "lime",
+				"transform":"scale(1,1)",
+				"border": "4px solid lime",
+				"border-radius": "0%",
+                "box-shadow": "0px 0px 4px lime",
+            }},
+        },
+        first: {
+            display(){return `<h1 style='font-size:16px;'>${Object.keys(findPreviousDialogues()[0][0])}<br>Dialogues`},
+            buy(){
+				player["tree-tab"].prevDialogueNumber[0] = 0
+				player["tree-tab"].prevDialogueNumber[1] = 0
+				player["tree-tab"].prevDialogueNumber[2] = findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]].length
+            },
+            canAfford(){return true},
+            style(){return {
+				"background-color":"lime",
+                "height": "50px",
+                "width": (570/player["tree-tab"].splitDialogueChoice)+"px",
+                "background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+				"background-position": "0px "+player.timePlayed*10+"px",
+				"color": "lime",
+				"transform":"scale(1,1)",
+				"border": "4px solid lime",
+				"border-radius": player["tree-tab"].splitDialogueChoice>1?"0% 0% 0% 25%":"0% 0% 25% 25%",
+                "box-shadow": "0px 0px 4px lime",
+            }},
+			unlocked(){return findPreviousDialogues()[0][0]}
+        },
+        second: {
+            display(){return `<h1 style='font-size:16px;'>${Object.keys(findPreviousDialogues()[0][1])}<br>Dialogues`},
+            buy(){
+				player["tree-tab"].prevDialogueNumber[0] = 1
+				player["tree-tab"].prevDialogueNumber[1] = 0
+				player["tree-tab"].prevDialogueNumber[2] = findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]].length
+            },
+            canAfford(){return true},
+            style(){return {
+				"background-color":"gray",
+                "height": "100px",
+                "width": "100px",
+                "background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+				"background-position": "0px "+player.timePlayed*10+"px",
+                "height": "50px", 
+                "width": (570/player["tree-tab"].splitDialogueChoice)+"px",
+				"background-color": "black",
+				"color": "lime",
+				"transform":"scale(1,1)",
+				"border": "4px solid lime",
+				"border-radius": player["tree-tab"].splitDialogueChoice>2?"0%":"0% 0% 25% 0%",
+                "box-shadow": "0px 0px 4px lime",
+            }},
+			unlocked(){return findPreviousDialogues()[0][1]}
+        },
+        third: {
+            display(){return `<h1 style='font-size:16px;'>${Object.keys(findPreviousDialogues()[0][2])}<br>Dialogues`},
+            buy(){
+				player["tree-tab"].prevDialogueNumber[0] = 2
+				player["tree-tab"].prevDialogueNumber[1] = 0
+				player["tree-tab"].prevDialogueNumber[2] = findPreviousDialogues()[0][player["tree-tab"].prevDialogueNumber[0]].length
+            },
+            canAfford(){return true},
+            style(){return {
+				"background-color":"gray",
+                "height": "100px",
+                "width": "100px",
+                "background": "repeating-linear-gradient(black, rgba(0,255,0,"+(Math.random()*0.2+0.1)+"), black, black 5px)",
+				"background-position": "0px "+player.timePlayed*10+"px",
+                "height": "50px", 
+                "width": (570/player["tree-tab"].splitDialogueChoice)+"px",
+				"background-color": "black",
+				"color": "lime",
+				"transform":"scale(1,1)",
+				"border": "4px solid lime",
+				"border-radius": "0% 0% 25% 0%",
+                "box-shadow": "0px 0px 4px lime",
+            }},
+			unlocked(){return findPreviousDialogues()[0][2]}
+        },
+	},
 	achievements: {
         11: {
             name: "Blah",
@@ -810,15 +1108,15 @@ addLayer("a", {
         },
         13: {
             name: "A MERE HUMAN",
-            done(){return player.a.statsRPG[0].gte(5)},
+            done(){return player.a.statsRPG[0].gte(5) && player.her.timeline[1]!==2},
             tooltip: "Reach 5 PL",
-            unlocked(){return player.a.unlockedTabs[0]}
+            unlocked(){return player.a.unlockedTabs[0] && player.her.timeline[1]!==2}
         },
         14: {
             name: "Forgive me for what I'm about to add, Acadaema",
-            done(){return player.a.finalStatsRPG[0].gt(1) || player.a.finalStatsRPG[1].gt(1) || player.a.finalStatsRPG[2].gt(1)},
+            done(){return player.yourGod.questsDone.gte(1) && player.her.timeline[1]==0},
             tooltip: "Complete your first quest",
-            unlocked(){return player.a.unlockedTabs[0]}
+            unlocked(){return player.a.unlockedTabs[0] && player.her.timeline[1]==0}
         },
         15: {
             name: "You WILL utilize that Agility.",
@@ -863,7 +1161,7 @@ addLayer("a", {
         s16: {
             name: "a new tab?<br><br><br>is for me?",
             done(){return hasUpgrade("s",14)},
-            tooltip: "Unlock a Space tab",
+            tooltip: "Unlock a second Space tab",
             unlocked(){return player["tree-tab"].shown[2]}
         },
         t11: {
@@ -874,7 +1172,7 @@ addLayer("a", {
         },
         t12: {
             name: "This is getting ridiculous",
-            done(){return tmp.t.timeGain.lte(0.1) && player.t.unlocked && player.t.points.gte(1)},
+            done(){return tmp.t.timeGain.lte(0.1) && player.t.unlocked && player.t.points.gte(1) && player.a.vibeCheck2.lte(0)},
             tooltip: "Reach 0.1 Time Points/sec<br>Reward: Times are 10% stronger",
             unlocked(){return player["tree-tab"].shown[3]}
         },
@@ -908,15 +1206,32 @@ addLayer("s", {
     startData() { return {
         unlocked: false,
 		points: new Decimal(0),
+		hypotheticalPoints: [new Decimal(1),new Decimal(1),new Decimal(0)],
+		hypotheticalIdEffects: [0,1,0,1],
+		canMaxBuyDimensions: false,
     }},
     nodeStyle(){return{
+		"border": options.hqStyle[0].substr(1),
+        "text-shadow": options.hqStyle[2].substr(1),
         "z-index":"1",
-        "box-shadow": "0px 0px "+(canReset("s")?20:0)+"px white,0px 0px "+(player.s.unlocked?!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)):0)+"px "+tmp.s.color+",0px 0px "+(player.s.unlocked?!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):0)+"px "+tmp.s.color, 
+		"background-color": player.s.unlocked?"black":"",
+		"color": player.s.unlocked?"white":"",
+		"border-color": player.s.unlocked?"rgba(255,255,255,0.125)":"",
+        "box-shadow": "0px 0px "+(canReset("s")?20:0)+"px white,0px 0px "+(player.s.unlocked?!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)):0)+"px "+tmp.s.color+",0px 0px "+(player.s.unlocked?!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):0)+"px "+tmp.s.color+options.hqStyle[1], 
     }},
     passiveGeneration(){
-        return new Decimal(player.a.unlockedTabs[1]?0.01:0).mul(player.a.finalStatsRPG[2])
+        return player.a.unlockedTabs[1]?new Decimal(player.s.unlocked?player.a.finalStatsRPG[2].div(100):0):false
     },
-    color: "darkgray",
+	hypotheticalEffects(){
+		return hasUpgrade("s",14)?[new Decimal(player.s.hypotheticalPoints[0]).root(26),new Decimal(player.s.hypotheticalPoints[0]).root(26),new Decimal(player.s.hypotheticalPoints[1]).root(4),new Decimal(player.s.hypotheticalPoints[1]).root(11),Decimal.pow(1.26, player.s.hypotheticalPoints[2]).pow(1.26)]:[new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1),new Decimal(1)]
+	},
+	update(diff){
+		if (hasUpgrade("s",14)){
+			player.s.hypotheticalPoints[0] = player.s.hypotheticalPoints[0].add(player.s.buyables["reverse11"].add(player.s.buyables["reverse13"]).mul(player.a.unlockedTabs[1]?player.a.finalStatsRPG[0]:1).mul(diff)).root(Decimal.root(Decimal.div(0.05, tmp.s.hypotheticalEffects[4]).add(1), Decimal.pow(diff, -1)))
+			player.s.hypotheticalPoints[1] = player.s.hypotheticalPoints[1].add(player.s.buyables["reverse12"].add(player.s.buyables["reverse14"]).mul(player.a.unlockedTabs[1]?player.a.finalStatsRPG[0]:1).mul(diff)).root(Decimal.root(Decimal.div(0.05, tmp.s.hypotheticalEffects[4]).add(1), Decimal.pow(diff, -1)))
+		}
+	},
+    color: "white",
     requires(){return new Decimal(!player.s.unlocked?"6.9e69":11)}, // Can be a function that takes requirement increases into account
     resource: "space", // Name of prestige currency
     baseResource: "prestige points", // Name of resource prestige is based on
@@ -930,23 +1245,39 @@ addLayer("s", {
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
         mult = mult.mul(tmp.s.buyables[13].effect)
-        return mult.mul(player.a.finalStatsRPG[0])
+		for(i=0;i<3;i++){
+			if(player.s.hypotheticalIdEffects[i]==2) mult = mult.mul(tmp.s.hypotheticalEffects[i])
+		}
+		if(player.s.hypotheticalIdEffects[3]==2) mult = mult.div(tmp.s.hypotheticalEffects[3])
+        return mult.mul(player.a.unlockedTabs[1]?player.a.finalStatsRPG[0]:1)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1).add(tmp.yourGod.buyables[23].effect)
     },
     tabFormat: {
 		"Space": {
-			content: ["main-display", "prestige-button","resource-display",["display-text",function(){return `Your total size is ${formatWhole(tmp.s.totalSize)}px${hasUpgrade("yourGod","space1")?"⁴":"³"}`+(hasAchievement("a","s12")?` and it divides your dimension buyables cost by /${(format(tmp.s.sizeEffect))}.`:`.`)}],"blank",["row", [["buyable",11],["buyable",12],["buyable", 13],["buyable", 14]]],"blank","upgrades","blank",["buyable", "terrasect"],"blank"],
-			unlocked(){return hasUpgrade("s",14)}
+			content: ["main-display", "prestige-button","resource-display",["display-text",function(){return `Your total size is ${formatWhole(tmp.s.totalSize)}px${hasUpgrade("yourGod","space1")?"⁴":"³"}`+(hasAchievement("a","s12")?` and it divides your dimension buyables cost by /${(format(tmp.s.sizeEffect))}`:``)}],"blank",["buyable","maxBuyToggle"],"blank",["row", [["buyable",11],["buyable",12],["buyable", 13],["buyable", 14]]],"blank","upgrades","blank",["buyable", "terrasect"],"blank"],
+			unlocked(){return hasUpgrade("s",14)},
+			buttonStyle(){return{
+				"color": "black",
+				"border-color": "black",
+				"box-shadow": "0px 0px 10px black inset,0px 0px 40px white inset,0px 0px 10px white",
+				"text-shadow": "0px 0px 10px white,0px 0px 20px black,0px 0px 30px black,0px 0px 40px black"
+			}},
 		},
-		"idk": {
-			content: ["main-display", "prestige-button","resource-display",["display-text",function(){return `FUCK YOU"`}]],
-			unlocked(){return hasUpgrade("s",14)}
+		"Hypothetical Dimensions": {
+			content: ["main-display", ["buyable","hypotheticalButton"],"resource-display",["display-text",function(){return `${player.s.hypotheticalPoints[2].gt(0)?`You have <span style="color: rgb(127.5, 31.5, 26); text-shadow: 0px 0px 10px rgb(127.5, 31.5, 26);">${format(player.s.hypotheticalPoints[2])}</span> Nullities, slowing down hypothetical points's decaying rate by <span style="color: rgb(127.5, 31.5, 26); text-shadow: 0px 0px 10px rgb(127.5, 31.5, 26);">/${format(tmp.s.hypotheticalEffects[4])}</span> and expanding ${hasUpgrade("yourGod","space1")?"Terrasect":"Cube"}'s total size by <span style="color: rgb(127.5, 31.5, 26); text-shadow: 0px 0px 10px rgb(127.5, 31.5, 26);">x${format(tmp.s.hypotheticalEffects[4])}</span><br><br>`:``}You have <span style="color: cyan; text-shadow: 0px 0px 10px cyan;">${format(player.s.hypotheticalPoints[0].sub(1))}</span> positive and <span style="color: pink; text-shadow: 0px 0px 10px pink;">${format(player.s.hypotheticalPoints[1].sub(1))}</span> negative hypothetical points.<br>Positive hypothetical points are giving slight boosts while negative hypothetical points are giving a strong boost in one aspect in exchange for a nerf in other aspect.<br>Positive Hypothetical Effects: <span style="color: cyan; text-shadow: 0px 0px 10px cyan;">x${format(tmp.s.hypotheticalEffects[0])} ${["Point Gain", "Prestige Point Gain", "Space Gain", "Time Point Gain"][player.s.hypotheticalIdEffects[0]]}, x${format(tmp.s.hypotheticalEffects[1])} ${["Point Gain", "Prestige Point Gain", "Space Gain", "Time Point Gain"][player.s.hypotheticalIdEffects[1]]}</span><br>Negative Hypothetical Effects: <span style="color: pink; text-shadow: 0px 0px 10px pink;">x${format(tmp.s.hypotheticalEffects[2])} ${["Point Gain", "Prestige Point Gain", "Space Gain", "Time Point Gain"][player.s.hypotheticalIdEffects[2]]}, /${format(tmp.s.hypotheticalEffects[3])} ${["Point Gain", "Prestige Point Gain", "Space Gain", "Time Point Gain"][player.s.hypotheticalIdEffects[3]]}</span>`}], "blank", ["row", [["buyable","positiveSelect1"],["buyable","positiveSelect2"],["buyable", "negativeSelect1"],["buyable", "negativeSelect2"]]], "blank", ["row", [["buyable","reverse11"],["buyable","reverse12"],["buyable", "reverse13"],["buyable", "reverse14"]]]],
+			unlocked(){return hasUpgrade("s",14)},
+			buttonStyle(){return{
+				"color": "black",
+				"border-color": "black",
+				"box-shadow": "0px 0px 10px black inset,0px 0px 40px white inset,0px 0px 10px white",
+				"text-shadow": "0px 0px 10px white,0px 0px 20px black,0px 0px 30px black,0px 0px 40px black"
+			}},
 		},
 	},
     totalSize(){
-        return tmp.s.buyables[11].effect2.mul(tmp.s.buyables[12].effect2).mul(tmp.s.buyables[13].effect2).mul(tmp.s.buyables[14].effect2).pow(hasUpgrade("s",13)?1.26:1)
+        return tmp.s.buyables[11].effect2.mul(tmp.s.buyables[12].effect2).mul(tmp.s.buyables[13].effect2).mul(tmp.s.buyables[14].effect2).mul(tmp.s.hypotheticalEffects[4]).pow(hasUpgrade("s",13)?1.26:1)
     },
     sizeEffect(){
         return tmp.s.totalSize.root(hasUpgrade("yourGod","space1")?4:3)
@@ -961,6 +1292,12 @@ addLayer("s", {
             effect(){return new Decimal(1/24+1).pow(player.s.buyables[11])},
             effectDisplay(){return "x"+format(this.effect())},
 			cost: new Decimal(12),
+			canAfford(){return player.s.points.gte(this.cost) && !hasUpgrade("s", 11)},
+			style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+			}},
 		},
 		12: { 
 			title: "Correct Order", 
@@ -968,105 +1305,482 @@ addLayer("s", {
             effect(){return player.s.buyables[13]},
             effectDisplay(){return "+"+format(this.effect())},
 			cost: new Decimal(288),
+			canAfford(){return player.s.points.gte(this.cost) && !hasUpgrade("s", 12)},
+			style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+			}},
 		},
 		13: { 
 			title: "String Theotu", 
 			description: "<h5>okay so there should've been a joke about russian movies having absurd dimensionality but we kept finding higher and higher ones so yeah we had to scrap the idea</h5>Boosts total size by ^1.26",
 			cost: new Decimal(10368),
+			canAfford(){return player.s.points.gte(this.cost) && !hasUpgrade("s", 13)},
+			style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+			}},
 		},
 		14: { 
-			title: "Hypothetic Tab (WIP)", 
-			description: "Height of Space is now included in Width of Prestige's effect",
-            effect(){return player.s.buyables[13]},
-            effectDisplay(){return "+"+format(this.effect())},
+			title: "Hypothetical Tab", 
+			description: "Unlocks a new Space tab",
 			cost: new Decimal(497664),
+			canAfford(){return player.s.points.gte(this.cost) && !hasUpgrade("s", 14)},
+			style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+			}},
 		},
     },
     buyables: {
-        11: {
+        hypotheticalButton: {
+			display(){return `<h2>Nullify Hypothetical Points.</h2><br><h3>Requirements:</h3><br>[<h3 style="color:cyan;text-shadow:0px 0px 10px cyan;">${format(player.s.hypotheticalPoints[0])} / ${format(this.requirement())}</h3>]<br>[<h3 style="color:pink;text-shadow:0px 0px 10px pink;">${format(player.s.hypotheticalPoints[1])} / ${format(this.requirement())}</h3>]`},
+			requirement(){
+				let req = new Decimal(11)
+				for(i=new Decimal(0);i.lt(player.s.hypotheticalPoints[2])&&i.lt(15);i=i.add(1)){
+					req = req.mul(i.add(12))
+				}
+				return req
+			},
+			buy(){
+				player.s.hypotheticalPoints[0] = player.s.hypotheticalPoints[0].sub(this.requirement())
+				player.s.hypotheticalPoints[1] = player.s.hypotheticalPoints[1].sub(this.requirement())
+				player.s.hypotheticalPoints[2] = player.s.hypotheticalPoints[2].add(1)
+			},
+			canAfford(){return player.s.hypotheticalPoints[0].gte(this.requirement()) && player.s.hypotheticalPoints[1].gte(this.requirement())},
+            style(){return{
+				"height": "120px",
+				"width": "180px",
+				"border-radius": "25%",
+				"border": "4px solid",
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+            }}
+		},
+		11: {
             title: "Length of Point",
-            display(){return `This is where it all starts.<br>Boosts your point gain by your length.<br><br>Current length: ${format(this.effect2())}px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} space`},
+            display(){return `This is where it all starts.<br>Boosts your point gain by your length.<br><br>Current length: ${format(this.effect2())}px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} spaces`},
             cost(){
-                let cost = new Decimal(1).mul(player.s.buyables[this.id].add(1).pow(1.15).pow(1.1))
-                if(tmp.s.buyables[this.id].effect2.gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[this.id].effect2.sub(60))))
+                let cost = new Decimal(1).mul(player.s.buyables[11].add(player.s.buyables["reverse11"].mul(26)).add(1).pow(1.15).pow(1.1))
+                if(tmp.s.buyables[11].effect2.add(player.s.buyables["reverse11"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[11].effect2.add(player.s.buyables["reverse11"].mul(26)).sub(60))))
                 return cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
             },
-            effect(){return new Decimal(1).add(player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).div(12)).mul(tmp.s.buyables[14].effect).mul(hasAchievement("a","s15")?1.04:1)},
-            effect2(){return player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).add(12)},
+            effect(){return new Decimal(1).add(player.s.buyables[11].add(tmp.yourGod.buyables[21].effect).div(12)).mul(tmp.s.buyables[14].effect).mul(hasAchievement("a","s15")?1.04:1).mul(tmp.s.buyables["reverse12"].effect).mul(tmp.s.buyables["reverse13"].effect)},
+            effect2(){return player.s.buyables[11].add(tmp.yourGod.buyables[21].effect).add(12)},
             canAfford(){return player.s.points.gte(this.cost())},
             buy(){
                 player.s.points = player.s.points.sub(this.cost())
-                player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
+                player.s.buyables[11] = player.s.buyables[11].add(1)
+				let check = false
+				let effect2 = new Decimal(1)
+				let cost = new Decimal(1)
+				if(player.s.canMaxBuyDimensions){
+					for(i=0;!check;i++){
+						effect2 = player.s.buyables[11].add(tmp.yourGod.buyables[21].effect).add(12)
+						cost = new Decimal(1).mul(player.s.buyables[11].add(player.s.buyables["reverse11"].mul(26)).add(1).pow(1.15).pow(1.1))
+						if(effect2.add(player.s.buyables["reverse11"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse11"].mul(26)).sub(60))))
+						cost = cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
+						if(player.s.points.lt(cost)) check = true
+						if(!check){
+							player.s.points = player.s.points.sub(cost)
+							player.s.buyables[11] = player.s.buyables[11].add(1)
+						}
+					}
+				}
             },
             style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
                 "border-radius": "25% 0% 0% 25%",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
                 "height": "150px",
                 "width": "150px"
             }}
         },
         12: {
             title: "Width of Prestige",
-            display(){return `Can't have TMT without width... I guess?.<br>Boosts your prestge point gain by your width.<br><br>Current width: ${format(this.effect2())} px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} space`},
+            display(){return `Can't have TMT without width... I guess?.<br>Boosts your prestge point gain by your width.<br><br>Current width: ${format(this.effect2())} px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} spaces`},
             cost(){
-                let cost = new Decimal(3).mul(player.s.buyables[this.id].add(1).pow(1.15).pow(1.2))
-                if(tmp.s.buyables[this.id].effect2.gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[this.id].effect2.sub(60))))
+                let cost = new Decimal(3).mul(player.s.buyables[12].add(player.s.buyables["reverse12"].mul(26)).add(1).pow(1.15).pow(1.2))
+                if(tmp.s.buyables[12].effect2.add(player.s.buyables["reverse12"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[12].effect2.add(player.s.buyables["reverse12"].mul(26)).sub(60))))
                 return cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
             },
-            effect(){return new Decimal(1).add(player.s.buyables[this.id].add(hasUpgrade("s",12)?player.s.buyables[13]:0).add(tmp.yourGod.buyables[21].effect).div(2)).mul(tmp.s.buyables[14].effect).mul(hasAchievement("a","s15")?1.04:1)},
-            effect2(){return player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).add(2)},
+            effect(){return new Decimal(1).add(player.s.buyables[12].add(hasUpgrade("s",12)?player.s.buyables[13]:0).add(tmp.yourGod.buyables[21].effect).div(2)).mul(tmp.s.buyables[14].effect).mul(hasAchievement("a","s15")?1.04:1).mul(tmp.s.buyables["reverse11"].effect).mul(tmp.s.buyables["reverse13"].effect)},
+            effect2(){return player.s.buyables[12].add(tmp.yourGod.buyables[21].effect).add(2)},
             canAfford(){return player.s.points.gte(this.cost())},
             buy(){
                 player.s.points = player.s.points.sub(this.cost())
-                player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
+                player.s.buyables[12] = player.s.buyables[12].add(1)
+				let check = false
+				let effect2 = new Decimal(1)
+				let cost = new Decimal(1)
+				if(effect2.add(player.s.buyables["reverse12"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse12"].mul(26)).sub(60)))).div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)	
+				if(player.s.canMaxBuyDimensions){
+					for(i=0;!check;i++){
+						effect2 = player.s.buyables[12].add(tmp.yourGod.buyables[21].effect).add(2)
+						cost = new Decimal(3).mul(player.s.buyables[12].add(player.s.buyables["reverse12"].mul(26)).add(1).pow(1.15).pow(1.2))
+						if(effect2.add(player.s.buyables["reverse12"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse12"].mul(26)).sub(60))))
+						cost = cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
+						if(player.s.points.lt(cost)) check = true
+						if(!check){
+							player.s.points = player.s.points.sub(cost)
+							player.s.buyables[12] = player.s.buyables[12].add(1)
+						}
+					}
+				}
             },
             style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
                 "border-radius": "0%",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
                 "height": "150px",
                 "width": "150px"
             }}
         },
         13: {
             title: "Height of Space",
-            display(){return `Only by having 3 dimensions can we truly exist, at least hypothetically speaking.<br>Boosts your space gain by your height.<br><br>Current width: ${format(this.effect2())} px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} space`},
+            display(){return `Only by having 3 dimensions can we truly exist, at least hypothetically speaking.<br>Boosts your space gain by your height.<br><br>Current height: ${format(this.effect2())} px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} spaces`},
             cost(){
-                let cost = new Decimal(9).mul(player.s.buyables[this.id].add(1).pow(1.15).pow(1.3))
-                if(tmp.s.buyables[this.id].effect2.gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[this.id].effect2.sub(60))))
+                let cost = new Decimal(9).mul(player.s.buyables[13].add(player.s.buyables["reverse13"].mul(26)).add(1).pow(1.15).pow(1.3))
+                if(tmp.s.buyables[13].effect2.add(player.s.buyables["reverse13"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[13].effect2.add(player.s.buyables["reverse13"].mul(26)).sub(60))))
                 return cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
             },
-            effect(){return player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).add(1).mul(tmp.s.buyables[14].effect).mul(hasAchievement("a","s15")?1.04:1)},
-            effect2(){return player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).add(1)},
+            effect(){return player.s.buyables[13].add(tmp.yourGod.buyables[21].effect).add(1).mul(tmp.s.buyables[14].effect).mul(hasAchievement("a","s15")?1.04:1).mul(tmp.s.buyables["reverse11"].effect).mul(tmp.s.buyables["reverse12"].effect)},
+            effect2(){return player.s.buyables[13].add(tmp.yourGod.buyables[21].effect).add(1)},
             canAfford(){return player.s.points.gte(this.cost())},
             buy(){
                 player.s.points = player.s.points.sub(this.cost())
-                player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
+                player.s.buyables[13] = player.s.buyables[13].add(1)
+				let check = false
+				let effect2 = new Decimal(1)
+				let cost = new Decimal(1)
+				if(effect2.add(player.s.buyables["reverse13"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse13"].mul(26)).sub(60)))).div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
+				if(player.s.canMaxBuyDimensions){
+					for(i=0;!check;i++){
+						effect2 = player.s.buyables[13].add(tmp.yourGod.buyables[21].effect).add(1)
+						cost = new Decimal(9).mul(player.s.buyables[13].add(player.s.buyables["reverse13"].mul(26)).add(1).pow(1.15).pow(1.3))
+						if(effect2.add(player.s.buyables["reverse13"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse13"].mul(26)).sub(60))))
+						cost = cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
+						if(player.s.points.lt(cost)) check = true
+						if(!check){
+							player.s.points = player.s.points.sub(cost)
+							player.s.buyables[13] = player.s.buyables[13].add(1)
+						}
+					}
+				}
             },
             style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
                 "border-radius": (hasUpgrade("yourGod","space1")?"0%":"0% 25% 25% 0%"),
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
                 "height": "150px",
                 "width": "150px"
             }}
         },
         14: {
             title: "Time of Spissitude",
-            display(){return `I guess we're buffing Time now.<br>Boosts other Space buyables and time points gain by your spissitude.<br><br>Current spissitude: ${format(this.effect2())} px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} space`},
+            display(){return `I guess we're buffing Time now.<br>Boosts other Space buyables and time points gain by your spissitude.<br><br>Current spissitude: ${format(this.effect2())} px<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} spaces`},
             cost(){
-                let cost = new Decimal(729).mul(player.s.buyables[this.id].add(1).pow(1.15).pow(1.4))
-                if(tmp.s.buyables[this.id].effect2.gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[this.id].effect2.sub(60))))
+                let cost = new Decimal(729).mul(player.s.buyables[14].add(player.s.buyables["reverse14"].mul(26)).add(1).pow(1.15).pow(1.4))
+                if(tmp.s.buyables[14].effect2.add(player.s.buyables["reverse14"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(tmp.s.buyables[14].effect2.add(player.s.buyables["reverse14"].mul(26)).sub(60))))
                 return cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
             },
-            effect(){return (this.unlocked?player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).add(1).root(4).mul(hasAchievement("a","s15")?1.04:1):1)},
-            effect2(){return (this.unlocked?player.s.buyables[this.id].add(tmp.yourGod.buyables[21].effect).add(1):1)},
+            effect(){return (this.unlocked?player.s.buyables[14].add(tmp.yourGod.buyables[21].effect).add(1).root(4).mul(hasAchievement("a","s15")?1.04:1):1)},
+            effect2(){return (this.unlocked?player.s.buyables[14].add(tmp.yourGod.buyables[21].effect).add(1):1)},
             canAfford(){return player.s.points.gte(this.cost())},
             buy(){
                 player.s.points = player.s.points.sub(this.cost())
-                player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
+                player.s.buyables[14] = player.s.buyables[14].add(1)
+				let check = false
+				let effect2 = new Decimal(1)
+				let cost = new Decimal(1)
+				if(effect2.add(player.s.buyables["reverse14"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse14"].mul(26)).sub(60)))).div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
+				if(player.s.canMaxBuyDimensions){
+					for(i=0;!check;i++){
+						effect2 = player.s.buyables[14].add(tmp.yourGod.buyables[21].effect).add(1)
+						cost = new Decimal(729).mul(player.s.buyables[14].add(player.s.buyables["reverse14"].mul(26)).add(1).pow(1.15).pow(1.4))
+						if(effect2.add(player.s.buyables["reverse14"].mul(26)).gte(60)) cost = cost.root(2).pow(new Decimal(2).add(new Decimal(0.4).mul(effect2.add(player.s.buyables["reverse14"].mul(26)).sub(60))))
+						cost = cost.div(hasAchievement("a","s12")?tmp.s.sizeEffect:1)
+						if(player.s.points.lt(cost)) check = true
+						if(!check){
+							player.s.points = player.s.points.sub(cost)
+							player.s.buyables[14] = player.s.buyables[14].add(1)
+						}
+					}
+				}
             },
             style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"white":"",
                 "border-radius": "0% 25% 25% 0%",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
                 "height": "150px",
                 "width": "150px"
             }},
             unlocked(){return hasUpgrade("yourGod", "space1")}
+        },
+		maxBuyToggle: {
+            title: "MAX BUY:",
+            display(){return `<h1>${player.s.canMaxBuyDimensions?"[ON]":"[OFF]"}`},
+            canAfford(){return true},
+            buy(){
+                player.s.canMaxBuyDimensions = !player.s.canMaxBuyDimensions
+            },
+            style(){return{
+				"background-color": "black",
+				"color": "white",
+                "border-radius": "25%",
+				"border-color": "rgba(255,255,255,0.125)",
+                "height": "100px",
+                "width": "100px"
+            }}
+        },
+        positiveSelect1: {
+            title(){return `<span style="font-size:12px;">`+["Points", "Prestige Points", "Space", "Time Points"][player.s.hypotheticalIdEffects[0]]},
+            canAfford(){return true},
+            buy(){
+				let check = false
+				let keepItSafe = player.s.hypotheticalIdEffects[0]
+				for(i=0;i<4;i++){
+					if(player.yourGod.bestPointsThusFar[i].gt(0) && !check && keepItSafe<i){
+						keepItSafe = i
+						check = true
+					}
+				}
+				if(player.s.hypotheticalIdEffects[0]==keepItSafe)
+					player.s.hypotheticalIdEffects[0] = 0;
+				else
+					player.s.hypotheticalIdEffects[0] = keepItSafe;
+				if(player.s.hypotheticalIdEffects[0]==player.s.hypotheticalIdEffects[1]) player.s.hypotheticalIdEffects[0] = player.yourGod.bestPointsThusFar[player.s.hypotheticalIdEffects[0]+1].gt(0)?player.s.hypotheticalIdEffects[0]+1:0
+            },
+            style(){return{
+				"background-color": "black",
+				"color": "cyan",
+                "border-radius": "25% 0% 0% 25%",
+				"border-color": "rgba(255,255,255,0.125)",
+                "height": "75px",
+                "width": "75px"
+            }},
+        },
+        positiveSelect2: {
+            title(){return `<span style="font-size:12px;">`+["Points", "Prestige Points", "Space", "Time Points"][player.s.hypotheticalIdEffects[1]]},
+            canAfford(){return true},
+            buy(){
+				let check = false
+				let keepItSafe = player.s.hypotheticalIdEffects[1]
+				for(i=0;i<4;i++){
+					if(player.yourGod.bestPointsThusFar[i].gt(0) && !check && keepItSafe<i){
+						keepItSafe = i
+						check = true
+					}
+				}
+				if(player.s.hypotheticalIdEffects[1]==keepItSafe)
+					player.s.hypotheticalIdEffects[1] = 0;
+				else
+					player.s.hypotheticalIdEffects[1] = keepItSafe;
+				if(player.s.hypotheticalIdEffects[1]==player.s.hypotheticalIdEffects[0]) player.s.hypotheticalIdEffects[1] = player.yourGod.bestPointsThusFar[player.s.hypotheticalIdEffects[1]+1].gt(0)?player.s.hypotheticalIdEffects[1]+1:0
+            },
+            style(){return{
+				"background-color": "black",
+				"color": "cyan",
+                "border-radius": "0%",
+				"border-color": "rgba(255,255,255,0.125)",
+                "height": "75px",
+                "width": "75px"
+            }},
+        },
+        negativeSelect1: {
+            title(){return `<span style="font-size:12px;">`+["Points", "Prestige Points", "Space", "Time Points"][player.s.hypotheticalIdEffects[2]]},
+            canAfford(){return true},
+            buy(){
+				let check = false
+				let keepItSafe = player.s.hypotheticalIdEffects[2]
+				for(i=0;i<4;i++){
+					if(player.yourGod.bestPointsThusFar[i].gt(0) && !check && keepItSafe<i){
+						keepItSafe = i
+						check = true
+					}
+				}
+				if(player.s.hypotheticalIdEffects[2]==keepItSafe)
+					player.s.hypotheticalIdEffects[2] = 0;
+				else
+					player.s.hypotheticalIdEffects[2] = keepItSafe;
+				if(player.s.hypotheticalIdEffects[2]==player.s.hypotheticalIdEffects[3]) player.s.hypotheticalIdEffects[2] = player.yourGod.bestPointsThusFar[player.s.hypotheticalIdEffects[2]+1].gt(2)?player.s.hypotheticalIdEffects[2]+3:2
+            },
+            style(){return{
+				"background-color": "black",
+				"color": "pink",
+                "border-radius": "0%",
+				"border-color": "rgba(255,255,255,0.125)",
+                "height": "75px",
+                "width": "75px"
+            }},
+        },
+        negativeSelect2: {
+            title(){return `<span style="font-size:12px;">`+["Points", "Prestige Points", "Space", "Time Points"][player.s.hypotheticalIdEffects[3]]},
+            canAfford(){return true},
+            buy(){
+				let check = false
+				let keepItSafe = player.s.hypotheticalIdEffects[3]
+				for(i=0;i<4;i++){
+					if(player.yourGod.bestPointsThusFar[i].gt(0) && !check && keepItSafe<i){
+						keepItSafe = i
+						check = true
+					}
+				}
+				if(player.s.hypotheticalIdEffects[3]==keepItSafe)
+					player.s.hypotheticalIdEffects[3] = 0;
+				else
+					player.s.hypotheticalIdEffects[3] = keepItSafe;
+				if(player.s.hypotheticalIdEffects[3]==player.s.hypotheticalIdEffects[2]) player.s.hypotheticalIdEffects[3] = player.yourGod.bestPointsThusFar[player.s.hypotheticalIdEffects[3]+1].gt(2)?player.s.hypotheticalIdEffects[3]+3:2
+            },
+            style(){return{
+				"background-color": "black",
+				"color": "pink",
+                "border-radius": "0% 25% 25% 0%",
+				"border-color": "rgba(255,255,255,0.125)",
+                "height": "75px",
+                "width": "75px"
+            }},
+        },
+        reverse11: {
+            title: "Hypothetical Length",
+            display(){return `Boosts "Width of Prestige" and "Height of Space" effects in exchange for 26 "Length of Point".<br><br>Current HL: ${format(player.s.buyables["reverse11"])}<br>Current effect: x${format(this.effect())}`},
+            effect(){return new Decimal(0.26).mul(player.s.buyables["reverse11"]).add(1)},
+            canAfford(){return player.s.buyables[11].gte(26)},
+            buy(){
+                player.s.buyables[11] = player.s.buyables[11].sub(26)
+                player.s.buyables["reverse11"] = player.s.buyables["reverse11"].add(1)
+            },
+			sellOne(){
+                player.s.buyables["reverse11"] = player.s.buyables["reverse11"].sub(1).max(0)
+			},
+            style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"cyan":"",
+                "border-radius": "25% 0% 0%",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+                "height": "150px",
+                "width": "150px"
+            }},
+			sellOneText: "Remove One",
+			sellOneStyle(){return{
+				"height": "50px",
+				"width": "150px",
+				"background": tmp.s.color,
+				"background-color": this.canAfford()?"black":"",
+				"border-radius": "0% 0% 0% 37.5px",
+				"color": this.canAfford()?"cyan":"",
+				"border": "2px solid",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+				"font-size": "16px",
+			}}
+        },
+        reverse12: {
+            title: "Hypothetical Width",
+            display(){return `Boosts "Length of Point" and "Height of Space" effects in exchange for 26 "Width of Prestige".<br><br>Current HW: ${format(player.s.buyables["reverse12"])}<br>Current effect: x${format(this.effect())}`},
+            effect(){return new Decimal(0.26).mul(player.s.buyables["reverse12"]).add(1)},
+            canAfford(){return player.s.buyables[12].gte(26)},
+            buy(){
+                player.s.buyables[12] = player.s.buyables[12].sub(26)
+                player.s.buyables["reverse12"] = player.s.buyables["reverse12"].add(1)
+            },
+			sellOne(){
+                player.s.buyables["reverse12"] = player.s.buyables["reverse12"].sub(1).max(0)
+			},
+            style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"pink":"",
+                "border-radius": "0%",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+                "height": "150px",
+                "width": "150px"
+            }},
+			sellOneText: "Remove One",
+			sellOneStyle(){return{
+				"height": "50px",
+				"width": "150px",
+				"background": tmp.s.color,
+				"background-color": this.canAfford()?"black":"",
+				"border-radius": "0%",
+				"color": this.canAfford()?"pink":"",
+				"border": "2px solid",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+				"font-size": "16px",
+			}}
+        },
+        reverse13: {
+            title: "Hypothetical Height",
+            display(){return `Boosts "Length of Point" and "Width of Prestige" effects in exchange for 26 "Height of Space".<br><br>Current HH: ${format(player.s.buyables["reverse13"])}<br>Current effect: x${format(this.effect())}`},
+            effect(){return new Decimal(0.26).mul(player.s.buyables["reverse13"]).add(1)},
+            canAfford(){return player.s.buyables[13].gte(26)},
+            buy(){
+                player.s.buyables[13] = player.s.buyables[13].sub(26)
+                player.s.buyables["reverse13"] = player.s.buyables["reverse13"].add(1)
+            },
+			sellOne(){
+                player.s.buyables["reverse13"] = player.s.buyables["reverse13"].sub(1).max(0)
+			},
+            style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"cyan":"",
+                "border-radius": (hasUpgrade("yourGod","space1")?"0%":"0% 25% 0% 0%"),
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+                "height": "150px",
+                "width": "150px"
+            }},
+			sellOneText: "Remove One",
+			sellOneStyle(){return{
+				"height": "50px",
+				"width": "150px",
+				"background": tmp.s.color,
+				"background-color": this.canAfford()?"black":"",
+				"border-radius": hasUpgrade("yourGod", "space1")?"0%":"0% 0% 37.5px 0%",
+				"color": this.canAfford()?"cyan":"",
+				"border": "2px solid",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+				"font-size": "16px",
+			}}
+        },
+        reverse14: {
+            title: "Hypothetical Spisstude",
+            display(){return `Boosts Time Point gain in exchange for 26 "Spisstude of Time".<br><br>Current HS: ${format(player.s.buyables["reverse14"])}<br>Current effect: x${format(this.effect())}`},
+            effect(){return (this.unlocked?new Decimal(0.26).mul(player.s.buyables["reverse14"]).add(1):new Decimal(1))},
+            canAfford(){return player.s.buyables[14].gte(26)},
+            buy(){
+                player.s.buyables[14] = player.s.buyables[14].sub(26)
+                player.s.buyables["reverse14"] = player.s.buyables["reverse14"].add(1)
+            },
+			sellOne(){
+                player.s.buyables["reverse14"] = player.s.buyables["reverse14"].sub(1).max(0)
+			},
+            style(){return{
+				"background-color": this.canAfford()?"black":"",
+				"color": this.canAfford()?"pink":"",
+                "border-radius": "0% 25% 0% 0%",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+                "height": "150px",
+                "width": "150px"
+            }},
+            unlocked(){return hasUpgrade("yourGod", "space1")},
+			sellOneText: "Remove One",
+			sellOneStyle(){return{
+				"height": "50px",
+				"width": "150px",
+				"background": tmp.s.color,
+				"background-color": this.canAfford()?"black":"",
+				"border-radius": "0% 0% 37.5px 0%",
+				"color": this.canAfford()?"pink":"",
+				"border": "2px solid",
+				"border-color": this.canAfford()?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+				"font-size": "16px",
+			}}
         },
         terrasect: {
             canAfford(){return false},
@@ -1075,21 +1789,28 @@ addLayer("s", {
                 "border": "0px solid",
                 "min-width": "0px",
                 "min-height": "0px",
-                "width": tmp.s.buyables[11].effect2+"px",
-                "height": tmp.s.buyables[13].effect2+"px",
-                "margin-top": tmp.s.buyables[12].effect2.min(new Decimal(options.pissLimit[0]).add(1)).add(tmp.s.buyables[14].effect2.min(new Decimal(options.pissLimit[1])))+"px",
+                "width": (tmp.s.buyables[11].effect2.min(options.pissLimit[0]))+"px",
+                "height": (tmp.s.buyables[13].effect2.min(options.pissLimit[1]))+"px",
+                "margin-top": tmp.s.buyables[12].effect2.min(new Decimal(options.pissLimit[2]).add(1)).add(tmp.s.buyables[14].effect2.min(new Decimal(options.pissLimit[3])))+"px",
                 "box-shadow": (player.s.secondDimension)
             }}
         }, 
     },
     secondDimension(){
         let a = ``
-        if(options.pissLimit[0]!==0) for(let i=new Decimal(0);i.lt(player.s.buyables[12]) && i.lt(options.pissLimit[0]);i=i.add(1)){
-            a = a+`${tmp.s.buyables[12].effect2.min(new Decimal(options.pissLimit[0]).add(1)).sub(1).div(player.s.buyables[12].min(new Decimal(options.pissLimit[0]).add(1))).mul(player.s.buyables[12].min(new Decimal(options.pissLimit[0]).add(1)).sub(i)).add(Math.sin(player.yourGod.timer*(i.add(1)))*(player.s.buyables[14].min(options.pissLimit[1])))}px ${tmp.s.buyables[12].effect2.min(new Decimal(options.pissLimit[0]).add(1)).sub(1).div(player.s.buyables[12].min(new Decimal(options.pissLimit[0]).add(1)).min(new Decimal(options.pissLimit[0]).add(1))).mul(player.s.buyables[12].min(new Decimal(options.pissLimit[0]).add(1)).sub(i)).mul(-1).add(Math.sin(player.yourGod.timer*(i.add(1)))*(player.s.buyables[14].min(options.pissLimit[1])))}px 0px 0px #9d6d6d,`
+        if(options.pissLimit[2]!==0) for(let i=new Decimal(0);i.lt(player.s.buyables[12]) && i.lt(options.pissLimit[2]);i=i.add(1)){
+            a = a+`${tmp.s.buyables[12].effect2.min(new Decimal(options.pissLimit[2]).add(1)).sub(1).div(player.s.buyables[12].min(new Decimal(options.pissLimit[2]).add(1))).mul(player.s.buyables[12].min(new Decimal(options.pissLimit[2]).add(1)).sub(i)).add(Math.sin(player.yourGod.timer*(i.add(1)))*(player.s.buyables[14].min(options.pissLimit[3])))}px ${tmp.s.buyables[12].effect2.min(new Decimal(options.pissLimit[2]).add(1)).sub(1).div(player.s.buyables[12].min(new Decimal(options.pissLimit[2]).add(1)).min(new Decimal(options.pissLimit[2]).add(1))).mul(player.s.buyables[12].min(new Decimal(options.pissLimit[2]).add(1)).sub(i)).mul(-1).add(Math.sin(player.yourGod.timer*(i.add(1)))*(player.s.buyables[14].min(options.pissLimit[3])))}px 0px 0px #9d6d6d,`
         }
 		else a=`,`
         return a.slice(0,-1)
     },
+	componentStyles: {
+		"prestige-button"(){return{
+			"background-color": canReset("s")?"black":"",
+			"color": canReset("s")?"white":"",
+			"border-color": canReset("s")?"rgba(255,255,255,0.125)":"rgba(0,0,0,0.125)",
+		}}
+	},
     branches: ["p"],
     layerShown(){return player["tree-tab"].shown[2]}
 })
@@ -1106,15 +1827,24 @@ addLayer("t", {
         timeSincePurchase: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
     }},
     nodeStyle(){return{
+		"border": options.hqStyle[0].substr(1),
+        "text-shadow": options.hqStyle[2].substr(1),
         "z-index":"1",
-        "box-shadow": "0px 0px "+(canReset("t")?20:0)+"px white,0px 0px "+(player.t.unlocked?!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)):0)+"px "+tmp.t.color+",0px 0px "+(player.t.unlocked?!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):0)+"px "+tmp.t.color, 
+        "box-shadow": "0px 0px "+(canReset("t")?20:0)+"px white,0px 0px "+(player.t.unlocked?!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)):0)+"px "+tmp.t.color+",0px 0px "+(player.t.unlocked?!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)):0)+"px "+tmp.t.color+options.hqStyle[1], 
     }},
-    timeGain(){return player.t.points.add(tmp.yourGod.buyables[31].effect).mul(tmp.t.buyables[12].effect).mul(tmp.s.buyables[14].effect).mul(player.a.finalStatsRPG[0]).mul(hasAchievement("a","t12")?1.1:1).sub(player.t.timePoints.pow(1/9+1).div(20).add(1).root(2).sub(1)).mul(hasUpgrade("t",14)?tmp.t.upgrades[14].effect:1).div(player.t.timePoints.div(20).add(1))},
+    timeGain(){
+		let base = player.t.points.add(tmp.yourGod.buyables[31].effect).mul(tmp.t.buyables[12].effect).mul(tmp.s.buyables[14].effect).mul(player.a.unlockedTabs[1]?player.a.finalStatsRPG[0]:1).mul(hasAchievement("a","t12")?1.1:1).mul(tmp.s.buyables["reverse14"].effect).add(player.her.timeline[1]==1?1:0).root(player.her.timeline[1]==1?2:1).sub(player.her.timeline[1]==1?1:0)
+		for(i=0;i<3;i++){
+			if(player.s.hypotheticalIdEffects[i]==3) base = base.mul(tmp.s.hypotheticalEffects[i])
+		}
+		if(player.s.hypotheticalIdEffects[3]==3) base = base.div(tmp.s.hypotheticalEffects[3])
+		return player.t.unlocked?base.sub(player.t.timePoints.pow(1/9+1).div(20).add(1).root(2).sub(1)).mul(hasUpgrade("t",14)?tmp.t.upgrades[14].effect:1).div(player.t.timePoints.div(20).add(1)):new Decimal(0)
+	},
     update(diff){
         player.t.timePoints = player.t.timePoints.add(tmp.t.timeGain.mul(diff))
         for(let i=1;i<6;i++){
             for(let v=1;v<3;v++){
-                if(player.t.upgrades.includes(i+v*10)) player.t.timeSincePurchase[i+v*5-6] = player.t.timeSincePurchase[i+v*5-6].add(diff)
+                if(player.t.upgrades.includes(i+v*10)) player.t.timeSincePurchase[i+v*5-6] = player.t.upgrades.includes(12) && !hasUpgrade("t",23) ? player.t.timeSincePurchase[i+v*5-6].add(diff).min(60) : player.t.timeSincePurchase[i+v*5-6].add(diff)
             }
         }
     },
@@ -1135,7 +1865,7 @@ addLayer("t", {
         12: {
 			title: "Patience Takes Time", 
 			description: "Increases your prestige point gain at faster rate (up to x3, resets on prestige reset)",
-            effect(){return hasUpgrade("t",23)&&(player.t.timeSincePurchase[1].pow(tmp.yourGod.buyables[33].effect.add(1)).div(30).add(1).gte(3))?player.t.timeSincePurchase[1].pow(tmp.yourGod.buyables[33].effect.add(1)).div(30).sub(2).root(3).add(2):player.t.timeSincePurchase[1].pow(tmp.yourGod.buyables[33].effect.add(1)).div(30).add(1).min(3)},
+            effect(){return hasUpgrade("t",23)&&(player.t.timeSincePurchase[1].pow(tmp.yourGod.buyables[33].effect.add(1)).div(30).add(1).gte(3))?player.t.timeSincePurchase[1].pow(tmp.yourGod.buyables[33].effect.add(1)).div(30).sub(2).root(Decimal.add(1, Decimal.div(2, player.a.unlockedTabs[1]?player.a.finalStatsRPG[1]:1))).add(2):player.t.timeSincePurchase[1].pow(tmp.yourGod.buyables[33].effect.add(1)).div(30).add(1).min(3)},
             effectDisplay(){return "x"+format(this.effect())+(this.effect().gte(3)?hasUpgrade("t",23)?"<br>(softcapped)":"<br>(hardcapped)":"")},
 			cost: new Decimal(20),
             currencyDisplayName: "time points",
@@ -1267,7 +1997,7 @@ addLayer("t", {
                 "border-radius": "0% 25% 25% 0%",
                 "border-color": "rgba(0,0,0,0.125)"
             }},
-            unlocked(){return hasUpgrade("yourGod","time1")}
+            unlocked(){return hasUpgrade("yourGod","time1") && hasUpgrade("t",15)}
         },
         hourBar: {
             direction: UP,
@@ -1309,7 +2039,7 @@ addLayer("t", {
                 "border-radius": "0% 25% 25% 0%",
                 "border-color": "rgba(0,0,0,0.125)"
             }},
-            unlocked(){return hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)}
+            unlocked(){return hasUpgrade("yourGod","time1") && hasUpgrade("t",25)}
         }
     },
     buyables: {
@@ -1317,14 +2047,14 @@ addLayer("t", {
             title: "Minutes",
             display(){return `Seconds are too irrelevant for time display anyways.<br>Massively boosts your point gain.<br><br>Minutes passed: ${format(player.t.buyables[11])}<br>Current effect: x${format(this.effect())}<br>Cost: ${format(this.cost())} time points`},
             cost(){
-                let cost = new Decimal(60).mul(player.t.buyables[this.id].add(1))
+                let cost = new Decimal(60).mul(player.t.buyables[11].add(1))
                 return cost
             },
-            effect(){return player.t.buyables[11].gte(1)?new Decimal(4).pow(player.t.buyables[this.id].add(hasUpgrade("yourGod","time1")?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
+            effect(){return player.t.buyables[11].gte(1)?new Decimal(4).pow(player.t.buyables[11].add(hasUpgrade("yourGod","time1")?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
             canAfford(){return player.t.timePoints.gte(this.cost())},
             buy(){
                 player.t.timePoints = player.t.timePoints.sub(this.cost())
-                player.t.buyables[this.id] = player.t.buyables[this.id].add(1)
+                player.t.buyables[11] = player.t.buyables[11].add(1)
             },
             style(){return{
                 "width": (hasUpgrade("yourGod","time1")?"175":"200")+"px",
@@ -1335,7 +2065,7 @@ addLayer("t", {
         12: {
             title: "Hours",
             display(){return `i guess we're doing conversation simulator now<br>Massively boosts your time point gain... Sort of.<br>Converts minutes into hours on purchase.<br><br>Hours passed: ${format(player.t.buyables[12])}<br>Current effect: x${format(this.effect())}<br>Net Gain:<br>${player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?`-`:`+`}${format(player.t.buyables[11].div(60).sub(player.t.buyables[12]).mul(player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?-1:1))} hours<br>${player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?`-`:`+`}x${format(this.effectPurchase().sub(this.effect()).mul(player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?-1:1))} effect`},
-            effect(){return player.t.buyables[12].gt(0)?new Decimal(4).pow(player.t.buyables[12].add(hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
+            effect(){return player.t.buyables[12].gt(0)?new Decimal(4).pow(player.t.buyables[12].add(hasUpgrade("yourGod","time1")?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
             effectPurchase(){return player.t.buyables[12].add(player.t.buyables[11].div(60).sub(player.t.buyables[12])).gt(0)?new Decimal(4).pow(player.t.buyables[12].add(player.t.buyables[11].div(60).sub(player.t.buyables[12])).add(hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
             canAfford(){return player.t.buyables[11].div(60).gt(player.t.buyables[12])},
             buy(){
@@ -1343,8 +2073,8 @@ addLayer("t", {
                 player.t.buyables[11] = new Decimal(0)
             },
             style(){return{
-                "width": (hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)?"175":"200")+"px",
-                "border-radius": (hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)?"25% 0% 0% 25%":"25%"),
+                "width": (hasUpgrade("yourGod","time1")?"175":"200")+"px",
+                "border-radius": (hasUpgrade("yourGod","time1")?"25% 0% 0% 25%":"25%"),
             }},
             unlocked(){return hasUpgrade("t",25)},
         },
@@ -1363,7 +2093,7 @@ addLayer("t", {
     },
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
-        return mult.div(player.a.finalStatsRPG[0]).div(tmp.t.upgrades[24].effect)
+        return mult.div(tmp.t.upgrades[24].effect)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -1371,6 +2101,51 @@ addLayer("t", {
     tabFormat: ["main-display", "prestige-button","resource-display",["display-text",function(){return `You have ${format(player.t.timePoints)} time points and you gain ${format(tmp.t.timeGain)} of it per second, slowly decreasing the more time points you get.`}],"blank",["display-text",function(){return `Time upgrades's effects are all dependant on time since purchase unless specified otherwise in upgrade descriptions`}],"blank","upgrades","blank",["row", [["buyable", 11], ["bar", "minuteBar"],"blank",["buyable", 12], ["bar", "hourBar"]]]],
     branches: ["p"],
     layerShown(){return player["tree-tab"].shown[3]}
+})
+
+addLayer("v", {
+    name: "vovka", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "V", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+    }},
+    nodeStyle(){return{
+		"background": player.v.unlocked?"linear-gradient(to top, rgb(46, 109, 211) 50%, rgb(31,37,51) 50%)":"",
+		"border": options.hqStyle[0].substr(1),
+        "text-shadow": options.hqStyle[2].substr(1),
+        "z-index":"1", 
+        "box-shadow": "0px 0px "+(canReset("v")?20:0)+"px white,0px 0px "+(!options.mobileShortcuts?player["tree-tab"].coolMobileStuff[0].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[0].mul(100)))+"px "+tmp.v.color+",0px 0px "+(!options.additionalMobileShortcuts?player["tree-tab"].coolMobileStuff[1].mul(100):new Decimal(100).sub(player["tree-tab"].coolMobileStuff[1].mul(100)))+"px "+tmp.v.color+options.hqStyle[1] 
+    }},
+    passiveGeneration(){
+        return player.a.unlockedTabs[1]?new Decimal(player.v.unlocked?player.a.finalStatsRPG[2].div(100):0):false
+    },
+	tooltipLocked(){return "Endgame."},
+    color: "#2E6DD3",
+    requires: new Decimal(1000000000000000000000000000000000), // Can be a function that takes requirement increases into account
+    resource: "prestige points", // Name of prestige currency
+    baseResource: "points", // Name of resource prestige is based on
+    baseAmount() {return player.points}, // Get the current amount of baseResource
+    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0.5, // Prestige currency exponent
+    gainAdd() { // Calculate the multiplier for main currency from bonuses
+        let add = new Decimal(0)
+        return add
+    },
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        let mult = new Decimal(1)
+        return mult.mul(player.a.unlockedTabs[1]?player.a.finalStatsRPG[0]:1)
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+	branches: ["t", "s"],
+    row: 2, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [
+        {key: "v", description: "V: Reset for vovka privileges", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    layerShown(){return player["tree-tab"].shown[4]},
 })
 
 addLayer("???", {
@@ -1395,11 +2170,10 @@ addLayer("???", {
         "options": {
 		content: [["raw-html", function(){return `<table>
             <tr>
-                <td><button class="opt" onclick="player.her.japanese=!player.her.japanese">Translate Japanese: ${player.her.japanese?"ON":"OFF"}</button></td>
+                <td><button class="opt" onclick="player.her.japanese=!player.her.japanese">Translate Japanese: ${!player.her.japanese?"ON":"OFF"}</button></td>
                 <td><button class="opt" onclick="limitThiShitPlease(['Choose your Strength','Choose your Agility.','Choose your Intelligence'],'player.a.statsRPG[i+1] = new Decimal(numbah[i])',true,true)">Change Your Stats</button></td>
-                <td><button class="opt" onclick="limitThiShitPlease(['Set player.devSpeed'],'player.devSpeed = numbah[i]',true,true)";player['tree-tab'].heFuckingCheated=true>Change Your Speed: x${format(player.devSpeed)}</button></td>
+                <td><button class="opt" onclick="limitThiShitPlease(['Set your speed'],'player.her.fuckOFFIMALLOWEDTOCHEATNOW = numbah[i]',true,true)";>Change Your Speed: x${format(player.her.fuckOFFIMALLOWEDTOCHEATNOW)}</button></td>
             </tr>
-            <tr>
         </table>`}]],
 			unlocked(){return false}
         },

@@ -1,12 +1,12 @@
 var systemComponents = {
 	'tab-buttons': {
-		props: ['layer', 'data', 'name'],
+		props: ['layer', 'data', 'name', 'title'],
 		template: `
 			<div class="upgRow">
 				<div v-for="tab in Object.keys(data)">
 					<button v-if="data[tab].unlocked == undefined || data[tab].unlocked" v-bind:class="{tabButton: true, notify: subtabShouldNotify(layer, name, tab), resetNotify: subtabResetNotify(layer, name, tab)}"
 					v-bind:style="[{'border-color': tmp[layer].color}, (subtabShouldNotify(layer, name, tab) ? {'box-shadow': 'var(--hqProperty2a), 0 0 20px '  + (data[tab].glowColor || defaultGlow)} : {}), tmp[layer].componentStyles['tab-button'], data[tab].buttonStyle]"
-						v-on:click="function(){player.subtabs[layer][name] = tab; updateTabFormats(); needCanvasUpdate = true;}">{{tab}}</button>
+						v-on:click="function(){player.subtabs[layer][name] = tab; updateTabFormats(); needCanvasUpdate = true;}">{{data[tab].title?data[tab].title:tab}}</button>
 				</div>
 			</div>
 		`
@@ -15,8 +15,8 @@ var systemComponents = {
 	'tree-node': {
 		props: ['layer', 'abb', 'size', 'prev'],
 		template: `
-		<button v-if="nodeShown(layer)"
-			v-bind:id="layer"
+		<button v-if="nodeShown(layer)" 
+			v-bind:id="layer" 
 			v-on:click="function() {
 				if (shiftDown && options.forceTooltips) player[layer].forceTooltip = !player[layer].forceTooltip
 				else if(tmp[layer].isLayer) {
@@ -27,10 +27,10 @@ var systemComponents = {
 					else
 						showTab(layer, prev)
 				}
-				else {run(layers[layer].onClick, layers[layer])}
+				else {
+					run(layers[layer].onClick, layers[layer])
+					}
 			}"
-
-
 			v-bind:class="{
 				treeNode: tmp[layer].isLayer,
 				treeButton: !tmp[layer].isLayer,
@@ -60,7 +60,28 @@ var systemComponents = {
 			)"></tooltip>
 			<node-mark :layer='layer' :data='tmp[layer].marked'></node-mark></span>
 		</button>
-		`
+		`,
+		data() { return { interval: false, click: false, time: 0,}},
+		methods: {
+			start() {
+                if(!this.click){
+                    doReset(this.layer)
+                    this.click = true
+                }
+				if (!this.interval) {
+					this.interval = setInterval((function() {
+						if(this.time >= 5)
+							doReset(this.layer)
+						this.time = this.time+1
+					}).bind(this), 50)}
+			},
+			stop() {
+				clearInterval(this.interval)
+				this.interval = false
+                this.click = false
+			  	this.time = 0
+			}
+		},
 	},
 
 	
@@ -150,74 +171,68 @@ var systemComponents = {
 
     'options-tab': {
         template: `
-        <table>
-            <tr>
-                <td><button class="opt" onclick="save()">Save</button></td>
-                <td><button class="opt" onclick="toggleOpt('autosave')">Autosave: {{ options.autosave?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="hardReset()">HARD RESET</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="exportSave()">Export to clipboard</button></td>
-                <td><button class="opt" onclick="importSave()">Import</button></td>
-                <td><button class="opt" onclick="toggleOpt('offlineProd')">Offline Prod: {{ options.offlineProd?"ON":"OFF" }}</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="switchTheme()">Theme: {{ getThemeName() }}</button></td>
-                <td><button class="opt" onclick="adjustMSDisp()">Show Milestones: {{ MS_DISPLAYS[MS_SETTINGS.indexOf(options.msDisplay)]}}</button></td>
-                <td><button class="opt" onclick="toggleOpt('hqTree')">High-Quality Tree: {{ options.hqTree?"ON":"OFF" }}</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="toggleOpt('hideChallenges')">Completed Challenges: {{ options.hideChallenges?"HIDDEN":"SHOWN" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('forceOneTab'); needsCanvasUpdate = true">Single-Tab Mode: {{ options.forceOneTab?"ALWAYS":"AUTO" }}</button></td>
-				<td><button class="opt" onclick="toggleOpt('forceTooltips'); needsCanvasUpdate = true">Shift-Click to Toggle Tooltips: {{ options.forceTooltips?"ON":"OFF" }}</button></td>
-				</tr> 
-            <tr>
-                <td><button class="opt" onclick="toggleOpt('skipDialogueErasure')">Skip Dialogue Erasure: {{ options.skipDialogueErasure?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('fastForwardDialogue')">Fast Forward Dialogue: {{ options.fastForwardDialogue?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('precisionNumber')">Precise Numbers: {{ options.precisionNumber?"ON":"OFF" }}</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="toggleOpt('mobileShortcuts')">Mobile Shortcuts: {{ options.mobileShortcuts?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('additionalMobileShortcuts')">Layer Info Shortcuts: {{ options.additionalMobileShortcuts?"ON":"OFF" }}</button></td>
-				<td><button class="opt" onclick="limitThiShitPlease(['Select amount of clones to be displayed','Select intensity of clone movements in px.'],'options.pissLimit[i] = new Decimal(numbah[i])',false)">{{ hasUpgrade("yourGod","space1")?"Terrasect":"Cube" }}'s Clone Limit and Intensity Movement: [{{ formatWhole(options.pissLimit[0]) }}|{{ formatWhole(options.pissLimit[1]) }}]</button></td>
-				</tr> 
-            <tr>
-        </table>`
-    },
-	'secret-options-tab': {
-        template: `
-        <table>
-            <tr>
-                <td><button class="opt" onclick="save()">Save</button></td>
-                <td><button class="opt" onclick="toggleOpt('autosave')">Autosave: {{ options.autosave?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="hardReset()">HARD RESET</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="exportSave()">Export to clipboard</button></td>
-                <td><button class="opt" onclick="importSave()">Import</button></td>
-                <td><button class="opt" onclick="toggleOpt('offlineProd')">Offline Prod: {{ options.offlineProd?"ON":"OFF" }}</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="switchTheme()">Theme: {{ getThemeName() }}</button></td>
-                <td><button class="opt" onclick="adjustMSDisp()">Show Milestones: {{ MS_DISPLAYS[MS_SETTINGS.indexOf(options.msDisplay)]}}</button></td>
-                <td><button class="opt" onclick="toggleOpt('hqTree')">High-Quality Tree: {{ options.hqTree?"ON":"OFF" }}</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="toggleOpt('hideChallenges')">Completed Challenges: {{ options.hideChallenges?"HIDDEN":"SHOWN" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('forceOneTab'); needsCanvasUpdate = true">Single-Tab Mode: {{ options.forceOneTab?"ALWAYS":"AUTO" }}</button></td>
-				<td><button class="opt" onclick="toggleOpt('forceTooltips'); needsCanvasUpdate = true">Shift-Click to Toggle Tooltips: {{ options.forceTooltips?"ON":"OFF" }}</button></td>
-				</tr> 
-            <tr>
-                <td><button class="opt" onclick="toggleOpt('skipDialogueErasure')">Skip Dialogue Erasure: {{ options.skipDialogueErasure?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('fastForwardDialogue')">Fast Forward Dialogue: {{ options.fastForwardDialogue?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('precisionNumber')">Precise Numbers: {{ options.precisionNumber?"ON":"OFF" }}</button></td>
-            </tr>
-            <tr>
-                <td><button class="opt" onclick="toggleOpt('mobileShortcuts')">Mobile Shortcuts: {{ options.mobileShortcuts?"ON":"OFF" }}</button></td>
-                <td><button class="opt" onclick="toggleOpt('additionalMobileShortcuts')">Layer Info Shortcuts: {{ options.additionalMobileShortcuts?"ON":"OFF" }}</button></td>
-				<td><button class="opt" onclick="limitThiShitPlease()">{{ hasUpgrade("yourGod","space1")?"Terrasect":"Cube" }}'s Clone Limit and Intensity Movement: [{{ formatWhole(options.pissLimit[0]) }}|{{ formatWhole(options.pissLimit[1]) }}]</button></td>
-				</tr> 
-            <tr>
+		<table>
+			<tr>
+				<td><button class="options-tab" onclick="options.currentTab=0">Standard</button></td>
+				<td><button class="options-tab" onclick="options.currentTab=1">Extras</button></td>
+				<td><button class="options-tab" onclick="options.currentTab=2">Save States</button></td>
+			</tr>
+			<tbody v-if="options.currentTab==0">
+				<tr>
+					<td><button class="opt" onclick="save()">Save</button></td>
+					<td><button class="opt" onclick="toggleOpt('autosave')">Autosave: {{ options.autosave?"ON":"OFF" }}</button></td>
+					<td><button class="opt" onclick="hardReset()">HARD RESET</button></td>
+				</tr>
+				<tr>
+					<td><button class="opt" onclick="exportSave()">Export to clipboard</button></td>
+					<td><button class="opt" onclick="importSave()">Import</button></td>
+					<td><button class="opt" onclick="toggleOpt('offlineProd')">Offline Prod: {{ options.offlineProd?"ON":"OFF" }}</button></td>
+				</tr>
+				<tr>
+					<td><button class="opt" onclick="switchTheme()">Theme: {{ getThemeName() }}</button></td>
+					<td><button class="opt" onclick="adjustMSDisp()">Show Milestones: {{ MS_DISPLAYS[MS_SETTINGS.indexOf(options.msDisplay)]}}</button></td>
+					<td><button class="opt" onclick="toggleOpt('hqTree')">High-Quality Tree: {{ options.hqTree?"ON":"OFF" }}</button></td>
+				</tr>
+				<tr>
+					<td><button class="opt" onclick="toggleOpt('hideChallenges')">Completed Challenges: {{ options.hideChallenges?"HIDDEN":"SHOWN" }}</button></td>
+					<td><button class="opt" onclick="toggleOpt('forceOneTab'); needsCanvasUpdate = true">Single-Tab Mode: {{ options.forceOneTab?"ALWAYS":"AUTO" }}</button></td>
+					<td><button class="opt" onclick="toggleOpt('forceTooltips'); needsCanvasUpdate = true">Shift-Click to Toggle Tooltips: {{ options.forceTooltips?"ON":"OFF" }}</button></td>
+				</tr>
+			</tbody>
+			<tbody v-if="options.currentTab==1">
+				<tr>
+					<td><button class="opt" onclick="toggleOpt('skipDialogueErasure')">Skip Dialogue Erasure: {{ options.skipDialogueErasure?"ON":"OFF" }}</button></td>
+					<td><button class="opt" onclick="toggleOpt('fastForwardDialogue')">Fast Forward Dialogue: {{ options.fastForwardDialogue?"ON":"OFF" }}</button></td>
+					<td><button class="opt" onclick="toggleOpt('precisionNumber')">Precise Numbers: {{ options.precisionNumber?"ON":"OFF" }}</button></td>
+				</tr>
+				<tr>
+					<td><button class="opt" onclick="toggleOpt('mobileShortcuts')">Mobile Shortcuts: {{ options.mobileShortcuts?"ON":"OFF" }}</button></td>
+					<td><button class="opt" onclick="toggleOpt('additionalMobileShortcuts')">Layer Info Shortcuts: {{ options.additionalMobileShortcuts?"ON":"OFF" }}</button></td>
+					<td><button class="opt" onclick="limitThiShitPlease(['Select length [x]','Select height [y]','Select width [z]','Select spisstude [t]'],'options.pissLimit[i] = new Decimal(numbah[i])',false,false)">{{ hasUpgrade("yourGod","space1")?"Terrasect":"Cube" }} Size Customization: [x:{{ formatWhole(options.pissLimit[0]) }}, y:{{ formatWhole(options.pissLimit[1]) }}, z:{{ formatWhole(options.pissLimit[2]) }}, t:{{ formatWhole(options.pissLimit[3]) }}]</button></td>
+					</tr> 
+				<tr>
+					<td><button class="opt" onclick="toggleOpt('musicMute')">Music Mute: {{ options.musicMute?"ON":"OFF" }}</button></td>
+					<td><button class="opt" onclick="limitThiShitPlease(['Choose your current font speed'],'options.fontSpeed = new Decimal(numbah[i])',false,false)">Font Display Speed: {{ formatWhole(options.fontSpeed) }}</button></td>
+					<td><button class="opt" onclick="toggleOpt('offTimeStatus'); if(options.offTimeStatus) limitThiShitPlease(['Choose the percentage of Offline Time you want to take.'],'options.offTimePercent = Math.min(numbah[i],100)/100',false,true)">Store Offline Time: {{ options.offTimeStatus?"ON":"OFF" }}<br>[{{ format(options.offTimePercent*100) }}%]</button></td>
+				</tr>
+			</tbody>
+			<tbody v-if="options.currentTab==2">
+				<tr>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[0][4]==1, saveCheated: options.saveFileState[0][4]==-1}" onclick="saveFile(0)">Save File #1<br>Time Played: {{ formatTime(options.saveFileState[0][1]) }}<br>Current State: {{ options.saveFileState[0][4] == 1 ? "Endgame" : options.saveFileState[0][0] }} {{options.saveFileState[0][2]?"["+formatWhole(options.saveFileState[0][3])+"]":""}}<br>{{ options.saveFileState[0][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[1][4]==1, saveCheated: options.saveFileState[1][4]==-1}" onclick="saveFile(1)">Save File #2<br>Time Played: {{ formatTime(options.saveFileState[1][1]) }}<br>Current State: {{ options.saveFileState[1][4] == 1 ? "Endgame" : options.saveFileState[1][0] }} {{options.saveFileState[1][2]?"["+formatWhole(options.saveFileState[1][3])+"]":""}}<br>{{ options.saveFileState[1][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[2][4]==1, saveCheated: options.saveFileState[2][4]==-1}" onclick="saveFile(2)">Save File #3<br>Time Played: {{ formatTime(options.saveFileState[2][1]) }}<br>Current State: {{ options.saveFileState[2][4] == 1 ? "Endgame" : options.saveFileState[2][0] }} {{options.saveFileState[2][2]?"["+formatWhole(options.saveFileState[2][3])+"]":""}}<br>{{ options.saveFileState[2][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+				</tr>
+				<tr>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[3][4]==1, saveCheated: options.saveFileState[3][4]==-1}" onclick="saveFile(3)">Save File #4<br>Time Played: {{ formatTime(options.saveFileState[3][1]) }}<br>Current State: {{ options.saveFileState[3][4] == 1 ? "Endgame" : options.saveFileState[3][0] }} {{options.saveFileState[3][2]?"["+formatWhole(options.saveFileState[3][3])+"]":""}}<br>{{ options.saveFileState[3][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[4][4]==1, saveCheated: options.saveFileState[4][4]==-1}" onclick="saveFile(4)">Save File #5<br>Time Played: {{ formatTime(options.saveFileState[4][1]) }}<br>Current State: {{ options.saveFileState[4][4] == 1 ? "Endgame" : options.saveFileState[4][0] }} {{options.saveFileState[4][2]?"["+formatWhole(options.saveFileState[4][3])+"]":""}}<br>{{ options.saveFileState[4][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[5][4]==1, saveCheated: options.saveFileState[5][4]==-1}" onclick="saveFile(5)">Save File #6<br>Time Played: {{ formatTime(options.saveFileState[5][1]) }}<br>Current State: {{ options.saveFileState[5][4] == 1 ? "Endgame" : options.saveFileState[5][0] }} {{options.saveFileState[5][2]?"["+formatWhole(options.saveFileState[5][3])+"]":""}}<br>{{ options.saveFileState[5][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+				</tr>
+				<tr>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[6][4]==1, saveCheated: options.saveFileState[6][4]==-1}" onclick="saveFile(6)">Save File #7<br>Time Played: {{ formatTime(options.saveFileState[6][1]) }}<br>Current State: {{ options.saveFileState[6][4] == 1 ? "Endgame" : options.saveFileState[6][0] }} {{options.saveFileState[6][2]?"["+formatWhole(options.saveFileState[6][3])+"]":""}}<br>{{ options.saveFileState[6][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[7][4]==1, saveCheated: options.saveFileState[7][4]==-1}" onclick="saveFile(7)">Save File #8<br>Time Played: {{ formatTime(options.saveFileState[7][1]) }}<br>Current State: {{ options.saveFileState[7][4] == 1 ? "Endgame" : options.saveFileState[7][0] }} {{options.saveFileState[7][2]?"["+formatWhole(options.saveFileState[7][3])+"]":""}}<br>{{ options.saveFileState[7][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+					<td><button v-bind:class="{save: true, saveSuccess: options.saveFileState[8][4]==1, saveCheated: options.saveFileState[8][4]==-1}" onclick="saveFile(8)">Save File #9<br>Time Played: {{ formatTime(options.saveFileState[8][1]) }}<br>Current State: {{ options.saveFileState[8][4] == 1 ? "Endgame" : options.saveFileState[8][0] }} {{options.saveFileState[8][2]?"["+formatWhole(options.saveFileState[8][3])+"]":""}}<br>{{ options.saveFileState[8][4] == -1 ? "(Game.RuinTheFun())":""}}</button></td>
+				</tr>
+			</tbody>
         </table>`
     },
 
