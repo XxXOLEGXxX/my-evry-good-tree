@@ -13,11 +13,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1.1",
+	num: "0.1.1.1",
 	name: "Timeline Shenanigans",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<h5>v0.1.1.1<br>
+		- Fixed Hours buyable breaking the game with Time perk bought.</h3><br>
 	<h2>v0.1.1: Timeline Shenanigans</h2><br>
 	<h3>[BUG FIXES (and whatnot)]</h3><br>
 		- Replaced (game-ruining) feature of kindly folding your save file into its initial state with a simple alert()<br>
@@ -37,7 +39,7 @@ let changelog = `<h1>Changelog:</h1><br>
 		- Reworked Quests slightly (Requirement decreases instead of changing completely when timer runs out, so long as the quest is at least Level 2 and reset option shows preview instead of outright resetting your quest)<br>
 		- Added Timelines<br>
 		- Added Space's second tab<br><br>
-	<h5>v0.1.0.1: dear god no<br>
+	<h5>v0.1.0.1<br>
 		- Fixed bug involving dialog softlocking players (and added comic sans for real this time)
 		- Replaced method of accessing secret menu due mobile players not having ability to access it</h3><br>
 	<h2>v0.1: New Beginning</h2><br>

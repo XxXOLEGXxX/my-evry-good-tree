@@ -2006,7 +2006,7 @@ addLayer("t", {
             barColor(){
                 let color = [0,0,0,0]
                 let colorFill = [255,255,255,1]
-                let progress = player.t.timePoints.div(player.yourGod.buyables[12].mul(3600).max(3600)).div(player.t.buyables[12].add(1)).min(player.yourGod.buyables[32].add(1))
+                let progress = player.t.timePoints.div(player.yourGod.buyables[12].mul(3600).max(3600)).min(player.yourGod.buyables[32].add(1))
                 for(i=new Decimal(0);i.lt(player.yourGod.buyables[32]);i=i.add(1)){
                     if(progress.gt(1)) {
                         progress = progress.sub(1)
@@ -2022,7 +2022,7 @@ addLayer("t", {
                 return [color, colorFill]
             },
             progress(){
-                let progress = player.t.timePoints.div(player.yourGod.buyables[12].mul(3600).max(3600)).div(player.t.buyables[12].add(1)).min(player.yourGod.buyables[32].add(1))
+                let progress = player.t.timePoints.div(player.yourGod.buyables[12].mul(3600).max(3600)).min(player.yourGod.buyables[32].add(1))
                 for(i=new Decimal(0);i.lt(player.yourGod.buyables[32]);i=i.add(1)){
                     if(progress.gt(1)) progress = progress.sub(1)
                 }
@@ -2039,7 +2039,7 @@ addLayer("t", {
                 "border-radius": "0% 25% 25% 0%",
                 "border-color": "rgba(0,0,0,0.125)"
             }},
-            unlocked(){return hasUpgrade("yourGod","time1") && hasUpgrade("t",25)}
+            unlocked(){return hasUpgrade("yourGod","time1") && hasUpgrade("t",25)&&player.t.buyables[12].gte(1)}
         }
     },
     buyables: {
@@ -2065,8 +2065,8 @@ addLayer("t", {
         12: {
             title: "Hours",
             display(){return `i guess we're doing conversation simulator now<br>Massively boosts your time point gain... Sort of.<br>Converts minutes into hours on purchase.<br><br>Hours passed: ${format(player.t.buyables[12])}<br>Current effect: x${format(this.effect())}<br>Net Gain:<br>${player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?`-`:`+`}${format(player.t.buyables[11].div(60).sub(player.t.buyables[12]).mul(player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?-1:1))} hours<br>${player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?`-`:`+`}x${format(this.effectPurchase().sub(this.effect()).mul(player.t.buyables[11].sub(player.t.buyables[12].mul(60)).lt(0)?-1:1))} effect`},
-            effect(){return player.t.buyables[12].gt(0)?new Decimal(4).pow(player.t.buyables[12].add(hasUpgrade("yourGod","time1")?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
-            effectPurchase(){return player.t.buyables[12].add(player.t.buyables[11].div(60).sub(player.t.buyables[12])).gt(0)?new Decimal(4).pow(player.t.buyables[12].add(player.t.buyables[11].div(60).sub(player.t.buyables[12])).add(hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)?player.t.timePoints.div(this.cost()).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
+            effect(){return player.t.buyables[12].gt(0)?new Decimal(4).pow(player.t.buyables[12].add(hasUpgrade("yourGod","time1")&&player.t.buyables[12].gte(1)?player.t.timePoints.div(player.t.buyables[12].mul(3600)).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
+            effectPurchase(){return player.t.buyables[12].add(player.t.buyables[11].div(60).sub(player.t.buyables[12])).gt(0)?new Decimal(4).pow(player.t.buyables[12].add(player.t.buyables[11].div(60).sub(player.t.buyables[12])).add(hasUpgrade("yourGod","time1") && player.t.buyables[12].gte(1)?player.t.timePoints.div(player.t.buyables[12].mul(3600)).min(Decimal.mul(1, tmp.yourGod.buyables[32].effect)):0)):new Decimal(1)}, 
             canAfford(){return player.t.buyables[11].div(60).gt(player.t.buyables[12])},
             buy(){
                 player.t.buyables[12] = player.t.buyables[11].div(60)
@@ -2074,7 +2074,7 @@ addLayer("t", {
             },
             style(){return{
                 "width": (hasUpgrade("yourGod","time1")?"175":"200")+"px",
-                "border-radius": (hasUpgrade("yourGod","time1")?"25% 0% 0% 25%":"25%"),
+                "border-radius": (hasUpgrade("yourGod","time1")&&player.t.buyables[12].gte(1)?"25% 0% 0% 25%":"25%"),
             }},
             unlocked(){return hasUpgrade("t",25)},
         },
